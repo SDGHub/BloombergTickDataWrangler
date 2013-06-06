@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloomberg Tick Data Wrangler", "Bloomberg Tick Data Wrangler\Bloomberg Tick Data Wrangler.csproj", "{D73085E1-1558-4B04-90D4-6C881D64E354}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WranglerDataStructures", "..\WranglerDataStructures\WranglerDataStructures.csproj", "{177C65C0-B4D9-4B7B-B929-368EDE4861B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BloombergDataHandler", "..\BloombergDataHandler\BloombergDataHandler\BloombergDataHandler.csproj", "{C42BE1F2-D645-4C88-8EDA-ADB4F8C68830}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QRDataSource", "..\QRDataSource\QRDataSource\QRDataSource.csproj", "{A7195048-DCF1-48BD-BC71-73D1D988E4E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HistoricalDataHandler", "..\HistoricalDataHandler\HistoricalDataHandler.csproj", "{7831CECB-889B-4EFE-80E5-6D3D0AB36804}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlbgTickDataWrangler", "..\BlbgTickDataWrangler\BlbgTickDataWrangler.csproj", "{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D73085E1-1558-4B04-90D4-6C881D64E354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D73085E1-1558-4B04-90D4-6C881D64E354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D73085E1-1558-4B04-90D4-6C881D64E354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D73085E1-1558-4B04-90D4-6C881D64E354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{177C65C0-B4D9-4B7B-B929-368EDE4861B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{177C65C0-B4D9-4B7B-B929-368EDE4861B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{177C65C0-B4D9-4B7B-B929-368EDE4861B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{177C65C0-B4D9-4B7B-B929-368EDE4861B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C42BE1F2-D645-4C88-8EDA-ADB4F8C68830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C42BE1F2-D645-4C88-8EDA-ADB4F8C68830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C42BE1F2-D645-4C88-8EDA-ADB4F8C68830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C42BE1F2-D645-4C88-8EDA-ADB4F8C68830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7195048-DCF1-48BD-BC71-73D1D988E4E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7195048-DCF1-48BD-BC71-73D1D988E4E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7195048-DCF1-48BD-BC71-73D1D988E4E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7195048-DCF1-48BD-BC71-73D1D988E4E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7831CECB-889B-4EFE-80E5-6D3D0AB36804}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7831CECB-889B-4EFE-80E5-6D3D0AB36804}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7831CECB-889B-4EFE-80E5-6D3D0AB36804}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7831CECB-889B-4EFE-80E5-6D3D0AB36804}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

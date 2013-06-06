@@ -1,0 +1,1304 @@
+USE [master]
+GO
+/****** Object:  Database Template "Placeholder"'s will be replaced by DB/path name ******/
+CREATE DATABASE [dbFileName_PlaceHolder] ON PRIMARY 
+( NAME = N'dbFileName_PlaceHolder', FILENAME = N'dbFilePath_PlaceHolder' , SIZE = 4096KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+ LOG ON 
+( NAME = N'dbLogFileName_PlaceHolder', FILENAME = N'dbLogFilePath_PlaceHolder' , SIZE = 1024KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+ COLLATE SQL_Latin1_General_CP1_CI_AS
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET COMPATIBILITY_LEVEL = 90
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ANSI_NULL_DEFAULT OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ANSI_NULLS OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ANSI_PADDING OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ANSI_WARNINGS OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ARITHABORT OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET AUTO_CLOSE OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET AUTO_CREATE_STATISTICS ON
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET AUTO_SHRINK OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET AUTO_UPDATE_STATISTICS ON
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET CURSOR_CLOSE_ON_COMMIT OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET CURSOR_DEFAULT  GLOBAL
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET CONCAT_NULL_YIELDS_NULL OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET NUMERIC_ROUNDABORT OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET QUOTED_IDENTIFIER OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET RECURSIVE_TRIGGERS OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET  DISABLE_BROKER
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET AUTO_UPDATE_STATISTICS_ASYNC OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET DATE_CORRELATION_OPTIMIZATION OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET TRUSTWORTHY OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET ALLOW_SNAPSHOT_ISOLATION OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET PARAMETERIZATION SIMPLE
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET READ_COMMITTED_SNAPSHOT OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET HONOR_BROKER_PRIORITY OFF
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET  READ_WRITE
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET RECOVERY SIMPLE
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET  MULTI_USER
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET PAGE_VERIFY CHECKSUM
+GO
+ALTER DATABASE  [dbFileName_PlaceHolder]  SET DB_CHAINING OFF
+GO
+USE  [dbFileName_PlaceHolder] 
+GO
+/****** Object:  Table [dbo].[Symbols]    Script Date: 11/10/2011 18:24:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[Symbols](
+	[Symbol]  [varchar](25) NOT NULL,
+	[ID] [smallint] IDENTITY(1,1) NOT NULL,
+	[SymbolName] [varchar](40) NULL,
+	[country] [varchar](2) NULL,
+	[crncy] [varchar](3) NULL,
+	[Sector1] [smallint] NULL,
+	[Sector1Name] [varchar](30) NULL,
+	[Sector2] [smallint] NULL,
+	[Sector2Name] [varchar](30) NULL,
+	[Sector3] [smallint] NULL,
+	[Sector3Name] [varchar](30) NULL,
+	[Sector4] [smallint] NULL,
+	[Sector4Name] [varchar](30) NULL,
+	[SecType] [smallint] NULL,
+	[MktStatus] [varchar](4) NULL,
+	[LastUpdtDT] [smalldatetime] NULL,
+	[LastFdmtUpdtDT] [smalldatetime] NULL,
+	[LastAdjDT] [smalldatetime] NULL,
+	[LastCalcDT] [smalldatetime] NULL,
+	[PX_TRADE_LOT_SIZE] [smallint] NULL,
+	[FUT_CUR_GEN_TICKER] [varchar](6) NULL,
+	[FUT_CONT_SIZE] [float] NULL,
+	[FUT_VAL_PT] [float] NULL,
+	[FUT_TICK_SIZE] [float] NULL,	
+	[FUT_DLV_DT_FIRST] [smalldatetime] NULL,
+	[OPT_TICK_SIZE] [float] NULL,
+	[OPT_CONT_SIZE] [float] NULL,
+	[OPT_STRIKE_PX] [float] NULL,
+	[OPT_UNDL_TICKER] [varchar](17) NULL,
+	[OPT_PUT_CALL] [varchar](4) NULL,
+	[OPT_EXPIRE_DT] [smalldatetime] NULL,
+	[HasTickData] bit Null,
+ CONSTRAINT [PK_Symbols] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
+ CONSTRAINT [IX_Symbols] UNIQUE NONCLUSTERED 
+(
+	[Symbol] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING OFF
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [Symbols_ID_Idx] ON [dbo].[Symbols] 
+(
+	[ID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[SeriesNames]    Script Date: 11/10/2011 18:24:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[SeriesNames](
+	[Name] [varchar](100) NOT NULL,
+	[ID] [smallint] NOT NULL,
+	[isCalculated] [bit] NOT NULL,
+	[isFundamental] [bit] NOT NULL,
+	[isTickData] [bit] NOT NULL,
+ CONSTRAINT [PK_SeriesID] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
+ CONSTRAINT [IX_SeriesNames] UNIQUE NONCLUSTERED 
+(
+	[Name] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[SeriesNames] ADD  CONSTRAINT [DF_SeriesNames_isCalculated]  DEFAULT ((0)) FOR [isCalculated]
+GO
+
+/****** Object:  Table [dbo].[SeriesFloat]    Script Date: 11/10/2011 18:24:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SeriesFloat](
+	[SeriesID] [smallint] NOT NULL,
+	[SymbolID] [smallint] NOT NULL,
+	[Date] [smalldatetime] NOT NULL,
+	[Val] [real] NOT NULL,
+ CONSTRAINT [PK_SeriesFloat] PRIMARY KEY CLUSTERED 
+(
+	[SeriesID] ASC,
+	[SymbolID] ASC,
+	[Date] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[SeriesFloat]  WITH CHECK ADD  CONSTRAINT [FK_SeriesFloat_SeriesNames] FOREIGN KEY([SeriesID])
+REFERENCES [dbo].[SeriesNames] ([ID])
+GO
+ALTER TABLE [dbo].[SeriesFloat] CHECK CONSTRAINT [FK_SeriesFloat_SeriesNames]
+GO
+ALTER TABLE [dbo].[SeriesFloat]  WITH CHECK ADD  CONSTRAINT [FK_SeriesFloat_Symbols] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+ALTER TABLE [dbo].[SeriesFloat] CHECK CONSTRAINT [FK_SeriesFloat_Symbols]
+GO
+
+USE  [dbFileName_PlaceHolder] 
+GO
+
+/****** Object:  Table [dbo].[SeriesTick]    Script Date: 01/24/2013 14:03:19 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+CREATE TABLE [dbo].[SeriesTick](
+	[SymbolID] [smallint] NOT NULL,
+	[FldType] [tinyint] NOT NULL,
+	[Date] [datetime2](6) NOT NULL,
+	[Price] [real] NOT NULL,
+	[Size] [real] NOT NULL,
+	[CondCode] [varchar](4) NULL,
+	[ExchgCode] [varchar](4) NULL,
+ CONSTRAINT [PK_SeriesTick] PRIMARY KEY CLUSTERED 
+(
+	[SymbolID] ASC,
+	[FldType] ASC,
+	[Date] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[SeriesTick]  WITH CHECK ADD  CONSTRAINT [FK_SeriesTick_Symbols] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+
+ALTER TABLE [dbo].[SeriesTick] CHECK CONSTRAINT [FK_SeriesTick_Symbols]
+GO
+
+/****** Object:  Table [dbo].[SeriesTickState]    Script Date: 2/15/2013 2:12:21 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+CREATE TABLE [dbo].[SeriesTickState](
+	[SymbolID] [smallint] NOT NULL,
+	[Date] [datetime2](6) NOT NULL,
+	[Bid] [real] NOT NULL,
+	[BidVol] [smallint] NOT NULL,
+	[Ask] [real] NOT NULL,
+	[AskVol] [smallint] NOT NULL,
+	[Last] [real] NOT NULL,
+	[LastVol] [smallint] NOT NULL,
+	[CondCode] [varchar](4) NULL,
+	[ExchgCode] [varchar](4) NULL,
+ CONSTRAINT [PK_SeriesTickState] PRIMARY KEY CLUSTERED 
+(
+	[SymbolID] ASC,
+	[Date] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[SeriesTickState]  WITH NOCHECK ADD  CONSTRAINT [FK_SeriesTickState_Symbols] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+
+ALTER TABLE [dbo].[SeriesTickState] CHECK CONSTRAINT [FK_SeriesTickState_Symbols]
+GO
+
+
+/****** Object:  Table [dbo].[Membership]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING OFF
+GO
+CREATE TABLE [dbo].[Membership](
+	[SymbolID] [smallint] NOT NULL,
+	[MembName] [varchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[isAdd] [bit] NOT NULL,
+	[Date] [smalldatetime] NOT NULL
+ CONSTRAINT [PK_Membership] PRIMARY KEY CLUSTERED 
+(
+	[SymbolID] ASC,
+	[MembName] ASC,
+	[isAdd] ASC,
+	[Date] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING OFF
+GO
+ALTER TABLE [dbo].[Membership]  WITH CHECK ADD  CONSTRAINT [FK_Membership_Symbols] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+ALTER TABLE [dbo].[Membership] CHECK CONSTRAINT [FK_Membership_Symbols]
+GO
+
+USE  [dbFileName_PlaceHolder] 
+GO
+
+/****** Object:  Table [dbo].[SeriesFA]    Script Date: 12/04/2012 19:54:53 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+CREATE TABLE [dbo].[SeriesFA](
+	[SeriesID] [smallint] NOT NULL,
+	[SymbolID] [smallint] NOT NULL,
+	[fPerType] [tinyint] NOT NULL,
+	[fPer] [tinyint] NOT NULL,
+	[fYear] [smallint] NOT NULL,
+	[Adjusted] [bit] NOT NULL,
+	[Consolidated] [bit] NOT NULL,
+	[Date] [smalldatetime] NOT NULL,
+	[AnnounceDate] [smalldatetime] NOT NULL,
+	[Val] [real] NOT NULL,
+ CONSTRAINT [PK_SeriesFA] PRIMARY KEY CLUSTERED 
+(
+	[SeriesID] ASC,
+	[SymbolID] ASC,
+	[Adjusted] ASC,
+	[Consolidated] ASC,
+	[fPerType] ASC,
+	[fYear] ASC,
+	[fPer] ASC,
+	[Date] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[SeriesFA]  WITH CHECK ADD  CONSTRAINT [FK_SeriesFA_SeriesNames] FOREIGN KEY([SeriesID])
+REFERENCES [dbo].[SeriesNames] ([ID])
+GO
+
+ALTER TABLE [dbo].[SeriesFA] CHECK CONSTRAINT [FK_SeriesFA_SeriesNames]
+GO
+
+ALTER TABLE [dbo].[SeriesFA]  WITH CHECK ADD  CONSTRAINT [FK_SeriesFA_Symbols] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+
+ALTER TABLE [dbo].[SeriesFA] CHECK CONSTRAINT [FK_SeriesFA_Symbols]
+
+
+USE  [dbFileName_PlaceHolder] 
+GO
+
+/****** Object:  Table [dbo].[DailyBars]    Script Date: 05/31/2012 17:52:13 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO
+
+CREATE TABLE [dbo].[DailyBars](
+	[Date] [smalldatetime] NOT NULL,
+	[SymbolID] [smallint] NOT NULL,
+	[Symbol]  [varchar](25) NOT NULL,
+	[Open] [real] NOT NULL,
+	[High] [real] NOT NULL,
+	[Low] [real] NOT NULL,
+	[Close] [real] NOT NULL,
+	[Volume] [real] NOT NULL,
+	[VWAP] [real] NOT NULL,
+ CONSTRAINT [PK_DailyBars] PRIMARY KEY CLUSTERED 
+(
+	[Date] ASC,
+	[SymbolID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[DailyBars]  WITH CHECK ADD  CONSTRAINT [FK_DailyBarsIdx] FOREIGN KEY([SymbolID])
+REFERENCES [dbo].[Symbols] ([ID])
+GO
+
+ALTER TABLE [dbo].[DailyBars] CHECK CONSTRAINT [FK_DailyBarsIdx]
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[InsertSymbol]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[InsertSymbol] 
+	@Symbol	varchar(25),
+	@ID smallint OUTPUT
+AS
+	INSERT INTO Symbols (Symbol, SymbolName, Sector1, Sector1Name, Sector2, Sector2Name, Sector3, Sector3Name)
+	VALUES(@Symbol, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+	-- return new ID
+	SET @ID = @@IDENTITY
+
+
+/****** Object:  StoredProcedure [dbo].[InsertSymbolFull]    Script Date: 01/21/2013 20:24:16 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[InsertSymbolFull]
+	@Symbol	varchar(25),
+	@SymbolName varchar(40),
+	@country varchar(2),
+	@crncy varchar(3),
+	@Sector1 smallInt,
+	@Sector1Name varchar(30),
+	@Sector2 smallInt,
+	@Sector2Name varchar(30),
+	@Sector3 smallInt,
+	@Sector3Name varchar(30),
+	@Sector4 smallInt,
+	@Sector4Name varchar(30),
+	@SecType smallInt,
+	@MktStatus varchar(4),
+	@LastUpdtDT smallDateTime,
+	@LastFdmtUpdtDT smallDateTime,
+	@LastAdjDt smallDateTime,
+	@LastCalcDT smallDateTime,
+	@PX_TRADE_LOT_SIZE smallInt,
+	@FUT_CUR_GEN_TICKER varchar(6),
+	@FUT_CONT_SIZE float,
+	@FUT_VAL_PT float,
+	@FUT_TICK_SIZE float,
+	@FUT_DLV_DT_FIRST smallDateTime, 
+	@OPT_TICK_SIZE float,
+	@OPT_CONT_SIZE float,
+	@OPT_STRIKE_PX float,
+	@OPT_UNDL_TICKER varchar(17),
+	@OPT_PUT_CALL varchar(4),
+	@OPT_EXPIRE_DT SmallDateTime,
+	@HasTickData bit,
+	@ID smallint OUTPUT
+AS
+	INSERT INTO Symbols (Symbol, SymbolName, country, crncy, Sector1, Sector1Name, Sector2, Sector2Name, Sector3, Sector3Name, 
+Sector4, Sector4Name, SecType, MktStatus, LastUpdtDT, LastFdmtUpdtDT, LastAdjDt, LastCalcDT, PX_TRADE_LOT_SIZE, FUT_CONT_SIZE, FUT_VAL_PT, 
+FUT_CUR_GEN_TICKER, FUT_TICK_SIZE, FUT_DLV_DT_FIRST, OPT_TICK_SIZE, OPT_CONT_SIZE, OPT_STRIKE_PX, OPT_UNDL_TICKER, OPT_PUT_CALL, OPT_EXPIRE_DT, HasTickData )
+	VALUES
+(@Symbol,@SymbolName,@country,@crncy,@Sector1,@Sector1Name,@Sector2,@Sector2Name,@Sector3,@Sector3Name,@Sector4,@Sector4Name,@SecType,
+@MktStatus,@LastUpdtDT,@LastFdmtUpdtDT,@LastAdjDt,@LastCalcDT, @PX_TRADE_LOT_SIZE, @FUT_CONT_SIZE,@FUT_VAL_PT,
+@FUT_CUR_GEN_TICKER,@FUT_TICK_SIZE, @FUT_DLV_DT_FIRST, @OPT_TICK_SIZE, @OPT_CONT_SIZE, @OPT_STRIKE_PX, @OPT_UNDL_TICKER, @OPT_PUT_CALL, @OPT_EXPIRE_DT,@HasTickData )
+		
+	-- return new ID
+	SET @ID = @@IDENTITY
+
+/****** Object:  StoredProcedure [dbo].[InsertSeriesName]    Script Date: 01/16/2013 10:10:45 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[InsertSeriesName]
+	@Name varchar(100),
+	@IsCalculated bit = 0,
+	@IsFundamental bit = 0,
+	@IsTickData bit = 0,
+	@ID smallint OUTPUT
+AS
+	BEGIN
+		DECLARE @MaxID smallint
+		SET @MaxID = (SELECT MAX(ID) FROM SeriesNames)
+		SET @MaxID = CASE WHEN @MaxID IS NULL THEN 1 ELSE @MaxID + 1 END
+		INSERT INTO SeriesNames VALUES(@Name, @MaxID, @IsCalculated, @IsFundamental, @IsTickData)
+		-- return new ID
+		SET @ID = @MaxID
+	END
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSymbolID]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSymbolID] 
+	(@Symbol varchar(25), 
+	 @ID smallint OUTPUT)
+AS
+	SELECT @ID=ID FROM Symbols WHERE Symbol=@Symbol
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSeriesID]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSeriesID] 
+	(@Name varchar(100), 
+	 @ID smallint OUTPUT)
+AS
+	SELECT @ID=ID FROM SeriesNames WHERE Name=@Name
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetIsFundamental]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetIsFundamental] 
+	(@ID smallint, 
+	 @IsFundamental bit OUTPUT)
+AS
+	SELECT @IsFundamental = isFundamental FROM SeriesNames WHERE ID=@ID
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[SetIsFundamental]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[SetIsFundamental]
+	(@ID smallint, 
+	 @IsFundamental bit)
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE SeriesNames
+    SET isFundamental = @IsFundamental
+    WHERE ID=@ID
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetisCalculated]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetIsCalculated] 
+	(@ID smallint, 
+	 @IsCalculated bit OUTPUT)
+AS
+	SELECT @IsCalculated = isCalculated FROM SeriesNames WHERE ID=@ID
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[SetisCalculated]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[SetIsCalculated]
+	(@ID smallint, 
+	 @IsCalculated bit)
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE SeriesNames
+    SET isCalculated = @IsCalculated
+    WHERE ID=@ID
+GO
+
+/****** Object:  StoredProcedure [dbo].[TimeSeriesExists]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[TimeSeriesExists] 
+	(@SeriesID	smallint,
+	 @SymbolID	smallint,
+	 @Exists	tinyint OUTPUT)
+AS
+	DECLARE @Value smallint;
+	SELECT TOP 1 @Value = SeriesID FROM SeriesFloat WHERE SeriesID=@SeriesID AND SymbolID=@SymbolID
+	SET @Exists = CASE WHEN @Value IS NULL THEN 0 ELSE 1 END
+GO
+
+/****** Object:  StoredProcedure [dbo].[InsertDateFloat]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[InsertDateFloat] 
+	(@SeriesID	smallint,
+	@SymbolID	smallint,
+	@Date		smalldatetime,
+	@Value		real)
+AS
+	-- Calling prgm should have run TimeSeriesExists first to check for existence of series
+	IF EXISTS (SELECT * FROM SeriesFloat WHERE SeriesID = @SeriesID AND SymbolID = @SymbolID AND Date = @Date)
+		UPDATE SeriesFloat SET Val = @Value WHERE SeriesID = @SeriesID AND SymbolID = @SymbolID AND Date = @Date
+	ELSE
+		INSERT INTO SeriesFloat VALUES(@SeriesID, @SymbolID, @Date, @Value)
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetTimeSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetTimeSeries] 
+	(@SeriesID	smallint,
+	 @SymbolID	smallint)
+AS
+	SELECT Date, Val FROM SeriesFloat WHERE SeriesID=@SeriesID AND SymbolID=@SymbolID
+	ORDER BY Date
+
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetDateTimesOfSeries]    Script Date: 11/15/2012 19:59:52 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+Create PROCEDURE [dbo].[GetDateTimesOfSeries] 
+	(@SeriesID	smallint,
+	 @SymbolID	smallint)
+AS
+	SELECT Date FROM SeriesFloat WHERE SeriesID=@SeriesID AND SymbolID=@SymbolID
+	ORDER BY Date
+
+
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetTimeSeriesBetweenDates]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+Create PROCEDURE [dbo].[GetTimeSeriesBetweenDates] 
+	(@SeriesID	smallint,
+	 @SymbolID	smallint,
+	 @StartDate	smallDateTime,
+	 @EndDate	smallDateTime)
+AS
+	SELECT Date, Val FROM SeriesFloat 
+	WHERE SeriesID=@SeriesID AND SymbolID=@SymbolID AND Date >= @StartDate AND Date <= @EndDate
+	ORDER BY Date
+
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetDateTimesOfSeriesBetweenDates]    Script Date: 11/15/2012 19:59:57 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetDateTimesOfSeriesBetweenDates] 
+	(@SeriesID	smallint,
+	 @SymbolID	smallint,
+	 @StartDate	smallDateTime,
+	 @EndDate	smallDateTime)
+AS
+	SELECT Date FROM SeriesFloat 
+	WHERE SeriesID=@SeriesID AND SymbolID=@SymbolID AND Date >= @StartDate AND Date <= @EndDate
+	ORDER BY Date
+
+
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[DeleteSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[DeleteSeries] 
+	(@ID	smallint)
+AS
+BEGIN
+	-- remove from time series table
+	DELETE FROM SeriesFloat
+	WHERE SeriesID = @ID
+
+	-- remove from series name table
+	DELETE FROM SeriesNames
+	WHERE ID = @ID
+END
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[DeleteSeriesSymbol]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[DeleteSeriesSymbol] 
+	(@SymbolID	smallint,
+	 @SeriesID	smallint)
+AS
+	-- remove time series for instrument
+	DELETE FROM SeriesFloat
+	WHERE SeriesID = @SeriesID AND SymbolID = @SymbolID
+	-- seriesID and symbolID are not deleted in the definition tables as series may exist for other symbols.
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetLastDateTime]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetLastDateTime] 
+	(@SymbolID	smallint,
+	 @SeriesID	smallint,
+	 @MaxDate smallDatetime OUTPUT)
+AS
+	SELECT @MaxDate = MAX(DATE) FROM SeriesFloat WHERE SeriesID = @SeriesID AND SymbolID = @SymbolID
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetLastDateTimeSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetLastDateTimeSeries] 
+	(@SeriesID	smallint,
+	 @MaxDate smallDatetime OUTPUT)
+AS
+	SELECT @MaxDate = MAX(DATE) FROM SeriesFloat WHERE SeriesID = @SeriesID
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetFirstDateTimeTickData]    Script Date: 01/29/2013 12:43:24 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetFirstDateTimeTickData] 
+	(@SymbolID	smallint,
+	 @MaxDate DateTime2 OUTPUT)
+AS
+	SELECT @MaxDate = Min([Date]) FROM SeriesTick WHERE SymbolID = @SymbolID
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetLastDateTimeTickData]    Script Date: 01/17/2013 18:17:10 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetLastDateTimeTickData] 
+	(@SymbolID	smallint,
+	 @MaxDate DateTime2 OUTPUT)
+AS
+	SELECT @MaxDate = MAX([Date]) FROM SeriesTick WHERE SymbolID = @SymbolID
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSymbolLastCalcUpdate]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSymbolLastCalcUpdate] 
+	(@Symbol varchar(25),
+	 @LastCalcUpdate smallDateTime OUTPUT)
+AS	
+	SELECT @LastCalcUpdate = LastCalcDT FROM Symbols WHERE Symbol=@Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSymbolsToCalc]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSymbolsToCalc] 
+	(@DSStartDate smallDateTime,
+	 @UpdateToDate smallDateTime,
+	 @SecType smallInt)
+AS	
+	SELECT Symbol, LastCalcDT 
+    FROM Symbols
+    WHERE SecType = @SecType AND (LastCalcDT = @DSStartDate OR (LastCalcDT <= @UpdateToDate AND (MktStatus = 'ACTV' OR SecType = 2)))
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSymbolsToUpdate]    Script Date: 01/21/2013 20:09:45 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetSymbolsToUpdate] 
+	(@DSStartDate smallDateTime,
+	 @UpdateToDate smallDateTime)
+AS	
+	Declare @Refresh bit = 0 
+	SELECT HasTickData, Symbol, LastUpdtDT, LastFdmtUpdtDT, LastAdjDT, FUT_DLV_DT_FIRST, OPT_EXPIRE_DT, MktStatus, FUT_CUR_GEN_TICKER as CurrFtSym, SecType, @Refresh as Refresh
+    FROM Symbols
+    WHERE (LastUpdtDT = @DSStartDate) or (LastFdmtUpdtDT = @DSStartDate) or ((LastUpdtDT <= @UpdateToDate) and ((MktStatus = 'ACTV') OR (SecType >= 2)))
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetSymbolsOfSeries]    Script Date: 11/28/2012 21:47:26 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSymbolsOfSeries] 
+	(@SeriesID	smallint)
+AS
+	Select Symbol
+	From Symbols as S2
+	inner join
+		( SELECT Distinct SymbolID FROM SeriesFloat WHERE SeriesID=@SeriesID ) as S1
+	On S1.SymbolID = S2.ID
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyGenTicker]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifyGenTicker]
+	@Symbol varchar(25),
+	@FUT_CUR_GEN_TICKER varchar(6) 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET FUT_CUR_GEN_TICKER = @FUT_CUR_GEN_TICKER
+    WHERE Symbol = @Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyLastAdjDT]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifyLastAdjDT]
+	@Symbol varchar(25),
+	@LastAdjDT smallDateTime 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET LastAdjDT = @LastAdjDT
+    WHERE Symbol = @Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyLastCalcDT]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifyLastCalcDT]
+	@Symbol varchar(25),
+	@LastCalcDT smallDateTime 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET LastCalcDT = @LastCalcDT
+    WHERE Symbol = @Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyLastUpdtDT]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifyLastUpdtDT]
+	@Symbol varchar(25),
+	@LastUpdtDT smallDateTime 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET LastUpdtDT = @LastUpdtDT
+    WHERE Symbol = @Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyLastFdmtUpdtDT]    Script Date: 11/28/2012 15:55:14 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+Create PROCEDURE [dbo].[ModifyLastFdmtUpdtDT]
+	@Symbol varchar(25),
+	@LastFdmtUpdtDT smallDateTime 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET LastFdmtUpdtDT = @LastFdmtUpdtDT
+    WHERE Symbol = @Symbol
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifyMktStatus]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifyMktStatus]
+	@Symbol varchar(25),
+	@MktStatus varchar(4) 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE Symbols
+    SET MktStatus = @MktStatus
+    WHERE Symbol = @Symbol
+GO
+
+/****** Object:  StoredProcedure [dbo].[ModifySeriesIsCalculated]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[ModifySeriesIsCalculated]
+	@Name varchar(100),
+	@isCalculated bit 
+AS
+	--UPDATE [dbo].[Symbols]
+	UPDATE SeriesNames
+    SET isCalculated = @isCalculated
+    WHERE Name = @Name
+GO
+
+/****** Object:  StoredProcedure [dbo].[PercentRankSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[PercentRankSeries]
+    @StartDate smallDateTime,
+	@EndDate smallDateTime,
+	@SymbolId smallInt,
+	@SeriesId smallInt,
+	@OutputSeriesId smallInt,
+	@Period smallInt
+AS
+	-- remove time series if it exists
+	BEGIN
+		 DELETE FROM SeriesFloat
+		 WHERE (SeriesID = @OutputSeriesId) AND (SymbolId = @SymbolId) AND (Date >= @StartDate) AND (Date <= @EndDate)	
+	END
+	
+	DECLARE @StartDate2 smallDateTime;
+	SET @StartDate2 =  DATEADD (d , -@Period * 1.7 , @StartDate );
+	
+	-- Percentile rank of a series. Same as Excel's PercentileRank.Inc
+	BEGIN 
+	    INSERT INTO SeriesFloat
+		SELECT @OutputSeriesId as SeriesID, t3.SymbolID as SymbolID, Date, t3.Pect as Val
+		FROM (
+			SELECT T1.Date as Date, T1.RowCnt, T2.SeriesID, T2.SymbolID, T2.Val, T2.Date as Date2, CAST(RANK() OVER(PARTITION BY T1.RowCnt ORDER BY T2.Val)-1 as FLOAT)/ @Period  as Pect
+			FROM (
+				SELECT [Date],ROW_NUMBER() OVER(ORDER BY[Date]) as RowCnt
+				FROM [SeriesFloat]
+				Where SymbolID = @SymbolID AND SeriesID = @SeriesID AND [Date] >= @StartDate2 AND [Date] <= @EndDate) as T1
+				INNER JOIN (
+				SELECT [SeriesID],[SymbolID],[Date],[Val],ROW_NUMBER() OVER(ORDER BY[Date]) as RowCnt
+				FROM [SeriesFloat]
+				Where SymbolID = @SymbolID AND SeriesID = @SeriesID AND [Date] >= @StartDate2 AND [Date] <= @EndDate) as T2
+				ON T2.RowCnt <= T1.RowCnt AND T2.RowCnt >= T1.RowCnt - @Period
+			WHERE T1.RowCnt >= @Period ) as T3
+		WHERE (T3.Date = T3.Date2) and (T3.Date >= @StartDate)
+    END
+
+
+/****** Object:  StoredProcedure [dbo].[RankPerDate]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[RankPerDate] 
+		@StartDate  smallDateTime,
+        @EndDate    smallDateTime,
+        @SeriesToRankID smallint,
+        @RankedSeriesID  smallint
+AS
+	-- remove time series if it exists
+	BEGIN
+		 DELETE FROM SeriesFloat
+		 WHERE SeriesID = @RankedSeriesID AND (Date >= @StartDate) AND (Date <= @EndDate)	
+	END
+	
+	BEGIN 
+		INSERT INTO SeriesFloat
+		SELECT SeriesID = @RankedSeriesID, SymbolID, Date, RANK() OVER (PARTITION BY Date ORDER BY Val DESC) AS Val
+		FROM SeriesFloat 
+		WHERE (SeriesID = @SeriesToRankID) AND (Date >= @StartDate) AND (Date <= @EndDate)
+    END
+
+/****** Object:  StoredProcedure [dbo].[OffsetSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[OffsetSeries]
+    @StartDate smallDateTime,
+	@EndDate smallDateTime,
+	@SymbolId smallInt,
+	@SeriesId smallInt,
+	@OutputSeriesId smallInt,
+	@RowOffset smallInt
+AS
+	-- remove time series if it exists
+	BEGIN
+		 DELETE FROM SeriesFloat
+		 WHERE (SeriesID = @OutputSeriesId) AND (SymbolId = @SymbolId) AND (Date >= @StartDate) AND (Date <= @EndDate)	
+	END
+	
+	-- Offset the series by @RowOffset rows. 
+	-- A positve value moves later values back. i.e looking into the future
+	-- A negative value moves earlier values forward. i.e looking into the past
+	BEGIN 
+	    INSERT INTO SeriesFloat
+		SELECT @OutputSeriesId as SeriesID, SymbolID, T1.Date as Date, T2.Val As Val
+		From (
+			  SELECT SeriesID, SymbolID, Date, Val, ROW_NUMBER() OVER(ORDER BY Date) as RowNum
+			  FROM SeriesFloat
+			  Where SeriesID = @SeriesId and SymbolID = @SymbolId) as T1
+		INNER JOIN (
+			  SELECT Date, Val, ROW_NUMBER() OVER(ORDER BY Date) - @RowOffset as RowNum
+			  FROM SeriesFloat
+			  Where SeriesID = @SeriesId and SymbolID = @SymbolId) as T2
+		On T1.RowNum = T2.RowNum	
+		WHERE (T1.Date >= @StartDate) AND (T1.Date <= @EndDate)
+		--ORDER BY T1.Date 
+    END
+
+
+/****** Object:  StoredProcedure [dbo].[SubtractSeries]    Script Date: 11/10/2011 18:24:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[SubtractSeries] 
+		@StartDate smallDateTime,
+		@EndDate smallDateTime,
+		@SymbolId1 smallInt,
+		@SymbolId2 smallInt,
+		@SeriesId smallInt,
+		@OutputSeriesId smallInt
+AS
+	-- remove time series if it exists
+	BEGIN
+		 DELETE FROM SeriesFloat
+		 WHERE SeriesID = @OutputSeriesId  AND (SymbolId = @SymbolId1) AND (Date >= @StartDate) AND (Date <= @EndDate)	
+	END
+	
+	BEGIN 
+	    INSERT INTO SeriesFloat
+		Select @OutputSeriesId as SeriesID, SymbolID, T1.Date, (T1.Val - T2.Val) as Val
+		FROM (
+		  SELECT SeriesID, SymbolID, Date, Val
+		  FROM SeriesFloat
+		  Where SeriesID = @SeriesId and SymbolID = @SymbolId1 AND (Date >= @StartDate) AND (Date <= @EndDate)) as T1
+		  Inner Join (
+			  SELECT Date, Val
+			  FROM SeriesFloat
+			  Where SeriesID = @SeriesId and SymbolID = @SymbolId2) as T2
+		  ON T1.Date = T2.Date
+    END
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[InsertMemberData]    Script Date: 05/29/2012 18:02:48 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[InsertMemberData] 
+	@SymbolID smallint,
+	@MembName varchar(20),
+	@isAdd bit, 
+	@Date smalldatetime
+AS
+	IF EXISTS (SELECT * FROM Membership WHERE MembName = @MembName AND SymbolID = @SymbolID AND isAdd = @isAdd)
+		UPDATE Membership SET Date = @Date WHERE MembName = @MembName AND SymbolID = @SymbolID AND isAdd = @isAdd
+	ELSE
+		INSERT INTO Membership VALUES(@SymbolID, @MembName, @isAdd, @Date)
+  
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetMembershipdata]    Script Date: 05/31/2012 17:57:22 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetMembershipData] 
+	(@SymbolID	smallint,
+	 @MembName varchar(20))
+AS
+	SELECT isAdd,[Date] FROM Membership WHERE SymbolID = @SymbolID AND UPPER(MembName) = UPPER(@MembName)
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetTradeLotSize]    Script Date: 07/30/2012 14:28:50 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[GetTradeLotSize] 
+	(@SymbolID smallint, 
+	 @TRADE_LOT_SIZE smallint OUTPUT)
+AS
+	SELECT @TRADE_LOT_SIZE=PX_TRADE_LOT_SIZE FROM Symbols WHERE ID=@SymbolID
+
+SET ANSI_NULLS ON
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[InsertFADateFloat]    Script Date: 12/05/2012 12:54:38 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+	
+CREATE PROCEDURE [dbo].[InsertFADateFloat]
+	@SeriesID smallint, 
+	@SymbolID smallint,
+	@fPerType tinyint,
+	@fYear smallint,
+	@fPer tinyint,
+	@Adjusted bit,
+	@Consolidated bit,
+	@Date smalldatetime,
+	@AnnounceDate smalldatetime,
+	@Val real
+AS
+	IF EXISTS (SELECT * FROM SeriesFA WHERE 
+	SymbolID = @SymbolID AND SeriesID = @SeriesID AND fPerType = @fPerType AND fYear = @fYear AND fPer = @fPer AND Consolidated = @Consolidated AND Adjusted = @Adjusted )
+		UPDATE SeriesFA SET Date = @Date, AnnounceDate = @AnnounceDate, Val = @Val
+		WHERE SymbolID = @SymbolID AND SeriesID = @SeriesID AND fPerType = @fPerType AND fYear = @fYear AND fPer = @fPer AND Consolidated = @Consolidated AND Adjusted = @Adjusted
+	ELSE
+		INSERT INTO SeriesFA VALUES(@SeriesID, @SymbolID, @fPerType, @fPer, @fYear, @Adjusted, @Consolidated, @Date, @AnnounceDate, @Val)
+  
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[InsertTickData]    Script Date: 01/24/2013 13:57:54 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[InsertTickData]
+	(@SymbolID smallint,
+	 @FldType tinyint,  -- 0 = trade, 1 = ask, 2 = bid, 
+	 @Date datetime2,
+	 @Price real,
+	 @Size real,
+	 @CondCode varchar(4),
+	 @ExchgCode varchar(4))
+AS
+	-- Calling prgm should have run TimeSeriesExists first to check for existence of series
+	IF EXISTS (SELECT * FROM SeriesTick WHERE FldType = @FldType AND SymbolID = @SymbolID AND Date = @Date)
+		UPDATE SeriesTick SET Price = @Price , Size = @Size , CondCode = @CondCode , ExchgCode = @ExchgCode WHERE FldType = @FldType AND SymbolID = @SymbolID AND Date = @Date
+	ELSE
+		INSERT INTO SeriesTick VALUES(@SymbolID, @FldType, @Date, @Price, @Size, @CondCode, @ExchgCode)
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetTickDataSeries]    Script Date: 01/30/2013 11:53:50 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetTickDataSeries] 
+	(@SymbolID	smallint)
+AS
+	SELECT FldType,[Date],Price,Size,CondCode,ExchgCode FROM SeriesTick WHERE SymbolID=@SymbolID
+	ORDER BY Date
+	
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetTickDataSeriesBetweenDates]    Script Date: 01/30/2013 11:53:54 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetTickDataSeriesBetweenDates] 
+	(@SymbolID	smallint,
+	 @StartDate	datetime2(6),
+	 @EndDate	datetime2(6))
+AS
+	SELECT FldType,[Date],Price,Size,CondCode,ExchgCode FROM SeriesTick 
+	WHERE SymbolID=@SymbolID AND Date >= @StartDate AND Date <= @EndDate
+	ORDER BY Date
+
+SET ANSI_NULLS ON
+
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[GetEmptyTickDataTable]    Script Date: 01/31/2013 16:45:24 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetEmptyTickDataTable] 
+AS
+	SELECT * FROM SeriesTick WHERE (1=2) -- always false
+
+SET ANSI_NULLS ON
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetEmptyTickDataStateTable]    Script Date: 2/15/2013 2:14:05 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetEmptyTickDataStateTable] 
+AS
+	SELECT * FROM SeriesTickState WHERE (1=2) -- always false
+
+SET ANSI_NULLS ON
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetFirstOfFldTickData]    Script Date: 4/3/2013 2:06:33 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[GetFirstOfFldTickData] 
+	(@SymbolID	smallint,
+	 @FldType tinyint,  -- 0 = trade, 1 = ask, 2 = bid
+	 @StartDate	datetime2(6),
+	 @EndDate	datetime2(6))
+AS
+	Select top 1 * 
+	From SeriesTick 
+	WHERE SymbolID = @SymbolID AND [Date] >= @StartDate AND [Date] <= @EndDate and FldType = @FldType  
+	order by [Date] 
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetLastOfFldTickData]    Script Date: 4/3/2013 2:06:38 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[GetLastOfFldTickData] 
+	(@SymbolID	smallint,
+	 @FldType tinyint,  -- 0 = trade, 1 = ask, 2 = bid
+	 @StartDate	datetime2(6),
+	 @EndDate	datetime2(6))
+AS
+	Select top 1 * 
+	From SeriesTick 
+	WHERE SymbolID = @SymbolID AND [Date] >= @StartDate AND [Date] <= @EndDate and FldType = @FldType  
+	order by [Date] desc
+
+GO
