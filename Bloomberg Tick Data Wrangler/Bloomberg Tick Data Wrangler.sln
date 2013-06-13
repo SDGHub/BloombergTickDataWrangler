@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HistoricalDataHandler", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlbgTickDataWrangler", "..\BlbgTickDataWrangler\BlbgTickDataWrangler.csproj", "{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests Suites", "Tests Suites", "{A4D5D1CE-98E8-4B5A-90BB-D71DD50A88DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BloombergDataHandler.Tests", "..\Tests\BloombergDataHandler.Tests\BloombergDataHandler.Tests.csproj", "{180D7AC1-CC87-42A3-8EC7-391606E133FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,8 +47,15 @@ Global
 		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{180D7AC1-CC87-42A3-8EC7-391606E133FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{180D7AC1-CC87-42A3-8EC7-391606E133FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{180D7AC1-CC87-42A3-8EC7-391606E133FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{180D7AC1-CC87-42A3-8EC7-391606E133FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{180D7AC1-CC87-42A3-8EC7-391606E133FE} = {A4D5D1CE-98E8-4B5A-90BB-D71DD50A88DC}
 	EndGlobalSection
 EndGlobal

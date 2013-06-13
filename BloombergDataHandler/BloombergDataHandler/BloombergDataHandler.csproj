@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloombergHistTickDataHandler.cs" />
+    <Compile Include="TickDataQueries.cs" />
     <Compile Include="BloombergRTDataEventHandler.cs" />
+    <Compile Include="ITickDataQueryParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
