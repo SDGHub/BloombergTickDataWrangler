@@ -33,6 +33,9 @@
     <Reference Include="Bloomberglp.Blpapi">
       <HintPath>..\..\..\..\..\..\..\blp\API\APIv3\DotnetAPI\v3.5.1.1\lib\Bloomberglp.Blpapi.dll</HintPath>
     </Reference>
+    <Reference Include="FakeItEasy">
+      <HintPath>..\..\Bloomberg Tick Data Wrangler\packages\FakeItEasy.1.12.0\lib\net40\FakeItEasy.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,10 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloombergHistTickDataHandler.cs" />
-    <Compile Include="TickDataQueries.cs" />
     <Compile Include="BloombergRTDataEventHandler.cs" />
-    <Compile Include="ITickDataQueryParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

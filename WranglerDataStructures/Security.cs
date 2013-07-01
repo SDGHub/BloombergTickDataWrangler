@@ -2,7 +2,7 @@
 namespace DataWrangler
 {
     // Data container for static Security data (only one per security)
-    public class Security
+    public class Security : WranglerDataStructures.ISecurity
     {
         public enum SecurityType { Equity, Index, Curncy, Comdty, IndexFuture, IndexOption }
 

@@ -307,7 +307,7 @@ namespace DataWrangler
                                 BidVolChg = (int)(PrevBidVol);
                                 BidVolChgSum -= BidVolChg;
                                 SetBidVolChgCnt(BidVolChg);
-                                Console.WriteLine("{0} went offered @ {1} {2} {3} {4}", Name, TimeStamp.ToLongTimeString(), Bid.ToString(), PrevBid.ToString(), BidVolChg.ToString());
+                                //Console.WriteLine("{0} went offered @ {1} {2} {3} {4}", Name, TimeStamp.ToLongTimeString(), Bid.ToString(), PrevBid.ToString(), BidVolChg.ToString());
                             }
                         }
                     }

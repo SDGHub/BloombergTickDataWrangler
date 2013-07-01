@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DataWrangler.HistoricalData;
 using DataWrangler.Bloomberg;
 using BloombergDataHandler.Tests.Setups;
 using Session = Bloomberglp.Blpapi.Session;
@@ -72,5 +73,17 @@ namespace BloombergDataHandler.Tests
 
              Assert.AreEqual(_setups.serverPort, BBHist.SessionOptions.ServerPort);
          }
+
+         [TestMethod]
+         public void t_Is_Set_To_Default()
+         {
+             var testParams = _setups.OneDayTestParams();
+             var queryGenerator = new TickDataQueries();
+             var response = queryGenerator.GetTickDataQueries(testParams);
+             var BBHist = new BloombergHistTickDataHandler(response);
+
+             Assert.AreEqual(_setups.serverPort, BBHist.SessionOptions.ServerPort);
+         }
+    
     }
 }

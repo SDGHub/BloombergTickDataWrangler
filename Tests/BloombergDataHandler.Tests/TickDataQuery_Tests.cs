@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DataWrangler;
+using DataWrangler.HistoricalData;
 using DataWrangler.Bloomberg;
 using BloombergDataHandler.Tests.Setups;
 
@@ -57,12 +59,21 @@ namespace BloombergDataHandler.Tests
         }
 
         [TestMethod]
-        public void Two_Day_Query_Returns_List_With_Count_of_2()
+        public void Two_Day_Query_Less_than_24hrs_Returns_Single_Query()
         {
             var testParams = _setups.TwoDayTestParams();
             var queryGenerator = new TickDataQueries();
             var response = queryGenerator.GetTickDataQueries(testParams);
-            Assert.AreEqual(2, response.Count);
+            Assert.AreEqual(1, response.Count);
+        }
+
+        [TestMethod]
+        public void Two_Day_Query_25hrs_over_3_Days_Returns_List_With_Count_of_3()
+        {
+            var testParams = _setups.TwoDayTestParams25hrs();
+            var queryGenerator = new TickDataQueries();
+            var response = queryGenerator.GetTickDataQueries(testParams);
+            Assert.AreEqual(3, response.Count);
         }
 
         [TestMethod]

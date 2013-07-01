@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataWrangler.Bloomberg
+namespace DataWrangler.HistoricalData
 {
     public class TickDataQueries
     {
-        public List<TickDataQuery> GetTickDataQueries(ITickDataQuery queryParms)
+        public List<ITickDataQuery> GetTickDataQueries(ITickDataQuery queryParms)
         {
             paramsChecks(queryParms);
 
-            var queries = new List<TickDataQuery>();
+            var queries = new List<ITickDataQuery>();
 
             if (queryParms.EndDate <= queryParms.StartDate)
                 return queries;
+
+
+            if (queryParms.EndDate - queryParms.StartDate <= new TimeSpan(24, 0, 0))
+            {
+                queries.Add(GenerateSingleQuery(queryParms, queryParms.StartDate, queryParms.EndDate));
+                return queries;
+            }
+
 
             for (var dt = queryParms.StartDate; dt.Date <= queryParms.EndDate; dt = dt.AddDays(1))
             {
@@ -24,7 +32,7 @@ namespace DataWrangler.Bloomberg
             return trimFirstAndLastQueries(queryParms, queries);
         }
 
-        private List<TickDataQuery> trimFirstAndLastQueries(ITickDataQuery queryParms, List<TickDataQuery> queries)
+        private List<ITickDataQuery> trimFirstAndLastQueries(ITickDataQuery queryParms, List<ITickDataQuery> queries)
         {
 
             if (queries[0].StartDate < queryParms.StartDate)
@@ -44,7 +52,7 @@ namespace DataWrangler.Bloomberg
                 StartDate = start,
                 EndDate = end,
                 IncludeConditionCode = queryParms.IncludeConditionCode,
-                includeExchangeCode = queryParms.includeExchangeCode,
+                IncludeExchangeCode = queryParms.IncludeExchangeCode,
                 Fields = queryParms.Fields
             };        
         }
@@ -80,8 +88,9 @@ namespace DataWrangler.Bloomberg
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IncludeConditionCode { get; set; }
-        public bool includeExchangeCode { get; set; }
+        public bool IncludeExchangeCode { get; set; }
         public List<string> Fields { get; set; }
+        public object correlationIdObj { get; set; }
     }
 
     public class TickDataQuery : ITickDataQuery
@@ -90,9 +99,9 @@ namespace DataWrangler.Bloomberg
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IncludeConditionCode { get; set; }
-        public bool includeExchangeCode { get; set; }
+        public bool IncludeExchangeCode { get; set; }
         public List<string> Fields { get; set; }
-        public object correlationID { get; set; }
+        public object correlationIdObj { get; set; }
     }
 
 }

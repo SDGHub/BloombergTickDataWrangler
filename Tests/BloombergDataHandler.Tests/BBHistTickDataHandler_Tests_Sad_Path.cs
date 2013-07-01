@@ -6,6 +6,7 @@ using BloombergDataHandler.Tests.Setups;
 
 namespace BloombergDataHandler.Tests
 {
+
     [TestClass]
     public class BBHistTickDataHandler_Tests_Sad_Path
     {    

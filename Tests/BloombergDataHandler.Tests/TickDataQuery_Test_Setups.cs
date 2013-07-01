@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataWrangler;
+using DataWrangler.HistoricalData;
 using DataWrangler.Bloomberg;
 
 namespace BloombergDataHandler.Tests.Setups
@@ -18,7 +20,7 @@ namespace BloombergDataHandler.Tests.Setups
                 EndDate = new DateTime(2012, 1, 12, 2, 0, 0),
                 Fields = getDefaultFields(),
                 IncludeConditionCode = true,
-                includeExchangeCode = true
+                IncludeExchangeCode = true
             };
         }
 
@@ -27,11 +29,24 @@ namespace BloombergDataHandler.Tests.Setups
             return new TickDataQueryParams()
             {
                 Security = "NKM3 Index",
-                StartDate = new DateTime(2012, 1, 5, 5, 0, 0),
-                EndDate = new DateTime(2012, 1, 6, 0, 0, 0),
+                StartDate = new DateTime(2012, 1, 5, 23, 59, 50),
+                EndDate = new DateTime(2012, 1, 6, 0, 1, 0),
                 Fields = getDefaultFields(),
                 IncludeConditionCode = true,
-                includeExchangeCode = true
+                IncludeExchangeCode = true
+            };
+        }
+
+        public TickDataQueryParams TwoDayTestParams25hrs()
+        {
+            return new TickDataQueryParams()
+            {
+                Security = "NKM3 Index",
+                StartDate = new DateTime(2012, 1, 5, 23, 59, 50),
+                EndDate = new DateTime(2012, 1, 7, 0, 59, 50),
+                Fields = getDefaultFields(),
+                IncludeConditionCode = true,
+                IncludeExchangeCode = true
             };
         }
 
@@ -51,7 +66,7 @@ namespace BloombergDataHandler.Tests.Setups
                 EndDate = new DateTime(2012, 1, 4, 12, 0, 0),
                 Fields = getDefaultFields(),
                 IncludeConditionCode = true,
-                includeExchangeCode = true
+               IncludeExchangeCode = true
             };
         }
 
@@ -64,7 +79,7 @@ namespace BloombergDataHandler.Tests.Setups
                 EndDate = new DateTime(2012, 1, 5, 3, 0, 0),
                 Fields = getDefaultFields(),
                 IncludeConditionCode = true,
-                includeExchangeCode = true
+               IncludeExchangeCode = true
             };
         }
 
@@ -75,7 +90,7 @@ namespace BloombergDataHandler.Tests.Setups
                 Security = "NKM3 Index",
                 Fields = getDefaultFields(),
                 IncludeConditionCode = true,
-                includeExchangeCode = true
+               IncludeExchangeCode = true
             };
         }
 

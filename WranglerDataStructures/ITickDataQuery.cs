@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataWrangler.Bloomberg
+namespace DataWrangler
 {
     public interface ITickDataQuery
     {
@@ -12,7 +9,8 @@ namespace DataWrangler.Bloomberg
         DateTime StartDate { get; set; }
         DateTime EndDate { get; set; }
         bool IncludeConditionCode { get; set; }
-        bool includeExchangeCode { get; set; }
+        bool IncludeExchangeCode { get; set; }
         List<string> Fields { get; set; }
+        object correlationIdObj { get; set; }
     }
 }

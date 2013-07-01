@@ -42,7 +42,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\BloombergDataHandler\BloombergDataHandler\bin\Debug\Bloomberglp.Blpapi.dll</HintPath>
     </Reference>
+    <Reference Include="FakeItEasy">
+      <HintPath>..\..\Bloomberg Tick Data Wrangler\packages\FakeItEasy.1.12.0\lib\net40\FakeItEasy.dll</HintPath>
+    </Reference>
+    <Reference Include="HistoricalDataHandler">
+      <HintPath>..\..\HistoricalDataHandler\bin\Debug\HistoricalDataHandler.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="WranglerDataStructures, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\WranglerDataStructures\bin\Debug\WranglerDataStructures.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -63,6 +73,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TickDataQuery_Test_Setups.cs" />
     <Compile Include="BBHistTickDataHandler_Tests_Sad_Path.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

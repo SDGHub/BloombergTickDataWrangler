@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
-namespace DataWrangler
+namespace DataWrangler.HistoricalData
 {
     public class HistoricalDataHandler
     {
         private readonly QRDataSource.QRDataSource _histDs = new QRDataSource.QRDataSource();
         public bool DsInitialized = false;
         public bool DsConnected = false;
+
+        private IHistoricalAdapter _historicalAdapter;
 
         // cached historical data
         public SortedDictionary<DateTime, Dictionary<DataFactory, List<TickData>>> CachedTickData
@@ -21,19 +22,25 @@ namespace DataWrangler
         private readonly Dictionary<string, DataFactory> _securities = new Dictionary<string, DataFactory>();
         private readonly List<DataInterval> _intervals = new List<DataInterval>();
 
-        public HistoricalDataHandler(string dsPath)
-        {            
-            _histDs.loadDataSource(dsPath);
-            DsInitialized = _histDs.initialized;
+        //public HistoricalDataHandler(string dsPath)
+        //{            
+        //    _histDs.loadDataSource(dsPath);
+        //    DsInitialized = _histDs.initialized;
 
-            if (_histDs.initialized)
-            {
-                DsConnected = _histDs.getSQLconnection();
-            }
+        //    if (_histDs.initialized)
+        //    {
+        //        DsConnected = _histDs.getSQLconnection();
+        //    }
 
-            Console.WriteLine("HistoricalDataHandler DSInitialized = {0}", DsInitialized);
-            Console.WriteLine("HistoricalDataHandler DSConnected = {0}", DsConnected);
-            Console.WriteLine(" ");
+        //    Console.WriteLine("HistoricalDataHandler DSInitialized = {0}", DsInitialized);
+        //    Console.WriteLine("HistoricalDataHandler DSConnected = {0}", DsConnected);
+        //    Console.WriteLine(" ");
+        //}
+
+        public HistoricalDataHandler(IHistoricalAdapter adapter)
+        {
+            _historicalAdapter = adapter;
+            _historicalAdapter.DataHandler = this;
         }
 
         #region Historical Data Setup & initialization
@@ -102,6 +109,31 @@ namespace DataWrangler
             foreach (DataRow row in dt.Rows)
             {
                 TickData tick = DataRowToTickData(factory, row);
+                if (tick != null)
+                {
+                    if (!mktSummary.Complete)
+                    {
+                        mktSummary = PrepareMktSummaryEvent(factory, mktSummary, tick);
+                        _mktSummaryEvents[factory] = mktSummary;
+                    }
+                    else
+                    {
+                        AddHistDataToCache(factory, tick);
+                    }
+                }
+            }
+        }
+        
+        public void ParseTickDataList(DataFactory factory, List<TickData> dt)
+        {
+            Console.WriteLine("Parsing {0} DataTable({1} rows)", factory.SecurityName, dt.Count.ToString());
+
+            if (!_mktSummaryEvents.ContainsKey(factory))
+                _mktSummaryEvents.Add(factory, new MktSummaryEvent { Complete = false });
+            MktSummaryEvent mktSummary = _mktSummaryEvents[factory];
+
+            foreach (var tick in dt)
+            {
                 if (tick != null)
                 {
                     if (!mktSummary.Complete)

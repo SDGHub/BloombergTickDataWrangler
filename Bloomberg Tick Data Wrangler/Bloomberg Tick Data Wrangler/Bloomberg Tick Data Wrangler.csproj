@@ -32,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BlbgTickDataWrangler">
+      <HintPath>..\..\BlbgTickDataWrangler\bin\Debug\BlbgTickDataWrangler.dll</HintPath>
+    </Reference>
+    <Reference Include="BloombergDataHandler">
+      <HintPath>..\..\BloombergDataHandler\BloombergDataHandler\bin\Debug\BloombergDataHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="HistoricalDataHandler">
+      <HintPath>..\..\HistoricalDataHandler\bin\Debug\HistoricalDataHandler.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,13 +51,16 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WranglerDataStructures">
+      <HintPath>..\..\WranglerDataStructures\bin\Debug\WranglerDataStructures.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
