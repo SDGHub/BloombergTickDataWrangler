@@ -36,6 +36,9 @@
     <Reference Include="FakeItEasy">
       <HintPath>..\..\Bloomberg Tick Data Wrangler\packages\FakeItEasy.1.12.0\lib\net40\FakeItEasy.dll</HintPath>
     </Reference>
+    <Reference Include="HistoricalDataHandler">
+      <HintPath>..\..\HistoricalDataHandler\bin\Debug\HistoricalDataHandler.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />

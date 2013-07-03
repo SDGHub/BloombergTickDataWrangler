@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using DataWrangler;
+using DataWrangler.Structures;
 
 namespace DataWrangler.HistoricalData
 {
@@ -18,132 +20,41 @@ namespace DataWrangler.HistoricalData
 
         private readonly Dictionary<DataFactory, MktSummaryEvent>
             _mktSummaryEvents = new Dictionary<DataFactory, MktSummaryEvent>();
-
-        private readonly Dictionary<string, DataFactory> _securities = new Dictionary<string, DataFactory>();
-        private readonly List<DataInterval> _intervals = new List<DataInterval>();
-
-        //public HistoricalDataHandler(string dsPath)
-        //{            
-        //    _histDs.loadDataSource(dsPath);
-        //    DsInitialized = _histDs.initialized;
-
-        //    if (_histDs.initialized)
-        //    {
-        //        DsConnected = _histDs.getSQLconnection();
-        //    }
-
-        //    Console.WriteLine("HistoricalDataHandler DSInitialized = {0}", DsInitialized);
-        //    Console.WriteLine("HistoricalDataHandler DSConnected = {0}", DsConnected);
-        //    Console.WriteLine(" ");
-        //}
-
+ 
         public HistoricalDataHandler(IHistoricalAdapter adapter)
         {
             _historicalAdapter = adapter;
             _historicalAdapter.DataHandler = this;
         }
 
-        #region Historical Data Setup & initialization
-
-        public void AddSecurity(string security, DataFactory dataFactoryObject)
-        {
-            if (security.Trim().Length > 0)
-            {
-                _securities.Add(security, dataFactoryObject);
-            }
-        }
-
-        public void AddSecurity(DataFactory dataFactoryObject)
-        {
-            _securities.Add(dataFactoryObject.SecurityName, dataFactoryObject);
-        }
-
-        public void AddDataInterval(DateTime start, DateTime end)
-        {
-            if (end > start)
-            {
-                _intervals.Add(new DataInterval { Start = start, End = end });
-            }
-            else
-            {
-                Console.WriteLine("Bad interval! end {0} <= start {1}! ", end, start);
-            }
-        }
-
-        public struct DataInterval
-        {
-            public DateTime Start;
-            public DateTime End;
-        }
-
-        #endregion
-
         #region Historical Data Caching
-
-        public void LoadHistoricalData()
-        {
-            foreach (DataInterval interval in _intervals)
-            {
-
-                Console.WriteLine("Requesting data from {0} to {1}", interval.Start.ToLongTimeString(), interval.End.ToLongTimeString());
-
-                foreach (var sec in _securities)
-                {
-
-                    Console.WriteLine(" ");
-                    Console.WriteLine("Requesting {0} historical data", sec.Key);
-                    DataTable data = _histDs.getTickDataSeries(sec.Key, interval.Start, interval.End);
-                    if (data.Rows.Count > 0) ParseDataTable(sec.Value, data);
-                }                
-            }
-        }
-
-        private void ParseDataTable(DataFactory factory, DataTable dt)
-        {
-            Console.WriteLine("Parsing {0} DataTable({1} rows)", factory.SecurityName, dt.Rows.Count.ToString());
-
-            if (!_mktSummaryEvents.ContainsKey(factory))
-                _mktSummaryEvents.Add(factory, new MktSummaryEvent {Complete = false});
-            MktSummaryEvent mktSummary = _mktSummaryEvents[factory];
-
-            foreach (DataRow row in dt.Rows)
-            {
-                TickData tick = DataRowToTickData(factory, row);
-                if (tick != null)
-                {
-                    if (!mktSummary.Complete)
-                    {
-                        mktSummary = PrepareMktSummaryEvent(factory, mktSummary, tick);
-                        _mktSummaryEvents[factory] = mktSummary;
-                    }
-                    else
-                    {
-                        AddHistDataToCache(factory, tick);
-                    }
-                }
-            }
-        }
         
-        public void ParseTickDataList(DataFactory factory, List<TickData> dt)
+        public void ParseTickDataList(object dataObject, List<TickData> dt)
         {
-            Console.WriteLine("Parsing {0} DataTable({1} rows)", factory.SecurityName, dt.Count.ToString());
 
-            if (!_mktSummaryEvents.ContainsKey(factory))
-                _mktSummaryEvents.Add(factory, new MktSummaryEvent { Complete = false });
-            MktSummaryEvent mktSummary = _mktSummaryEvents[factory];
-
-            foreach (var tick in dt)
+            if (dataObject is DataFactory)
             {
-                if (tick != null)
+                var factory = (DataFactory)dataObject;
+
+                Console.WriteLine("Parsing {0} DataTable({1} rows)", factory.SecurityName, dt.Count.ToString());
+
+                if (!_mktSummaryEvents.ContainsKey(factory))
+                    _mktSummaryEvents.Add(factory, new MktSummaryEvent { Complete = false });
+                MktSummaryEvent mktSummary = _mktSummaryEvents[factory];
+
+                foreach (var tick in dt)
                 {
-                    if (!mktSummary.Complete)
+                    if (tick != null)
                     {
-                        mktSummary = PrepareMktSummaryEvent(factory, mktSummary, tick);
-                        _mktSummaryEvents[factory] = mktSummary;
-                    }
-                    else
-                    {
-                        AddHistDataToCache(factory, tick);
+                        if (!mktSummary.Complete)
+                        {
+                            mktSummary = PrepareMktSummaryEvent(factory, mktSummary, tick);
+                            _mktSummaryEvents[factory] = mktSummary;
+                        }
+                        else
+                        {
+                            AddHistDataToCache(factory, tick);
+                        }
                     }
                 }
             }
@@ -151,7 +62,7 @@ namespace DataWrangler.HistoricalData
 
         private static TickData DataRowToTickData(DataFactory factory, DataRow row)
         {
-            Type type;
+            DataWrangler.Structures.Type type;
             DateTime timeStamp;
             Double price;
             uint size;
@@ -196,31 +107,20 @@ namespace DataWrangler.HistoricalData
         {
             switch (tick.Type)
             {
-                case Type.Ask:
-                    if (mktSummary.Ask == null)
-                    {
+                case DataWrangler.Structures.Type.Ask:
                         mktSummary.Ask = tick;
-                        if (tick.TimeStamp > mktSummary.EventTime) mktSummary.EventTime = tick.TimeStamp;
                         mktSummary = CheckForSyntheticTradeCondition(factory, mktSummary);
-                    }
                     break;
-                case Type.Bid:
-                    if (mktSummary.Bid == null)
-                    {
+                case DataWrangler.Structures.Type.Bid:
                         mktSummary.Bid = tick;
-                        if (tick.TimeStamp > mktSummary.EventTime) mktSummary.EventTime = tick.TimeStamp;
                         mktSummary = CheckForSyntheticTradeCondition(factory, mktSummary);
-                    }
                     break;
-                case Type.Trade:
-                    if (mktSummary.Trade == null)
-                    {
+                case DataWrangler.Structures.Type.Trade:
                         mktSummary.Trade = tick;
-                        if (tick.TimeStamp > mktSummary.EventTime) mktSummary.EventTime = tick.TimeStamp;
-                        mktSummary = CheckForSyntheticTradeCondition(factory, mktSummary);
-                    }
                     break;
             }
+
+            if (tick.TimeStamp > mktSummary.EventTime) mktSummary.EventTime = tick.TimeStamp;
 
             if ((mktSummary.Ask != null) && (mktSummary.Bid != null) && mktSummary.Trade != null)
             {
@@ -240,7 +140,7 @@ namespace DataWrangler.HistoricalData
             {
                 mktSummary.Trade = new TickData
                 {
-                    Type = Type.Trade,
+                    Type = DataWrangler.Structures.Type.Trade,
                     TimeStamp = mktSummary.EventTime,
                     Price = (mktSummary.Bid.Price + mktSummary.Ask.Price) / 2,
                     Size = 0,
@@ -253,8 +153,8 @@ namespace DataWrangler.HistoricalData
 
             return mktSummary;
         }
-        
-        private static Dictionary<string, string> GetCodes(string condCode, string exchCode, Type type)
+
+        private static Dictionary<string, string> GetCodes(string condCode, string exchCode, DataWrangler.Structures.Type type)
         {
             var codes = new Dictionary<string, string>();
 
@@ -262,13 +162,13 @@ namespace DataWrangler.HistoricalData
             {
                 switch (type)
                 {
-                    case Type.Ask:
+                    case DataWrangler.Structures.Type.Ask:
                         codes.Add("EXCH_CODE_LAST", exchCode);
                         break;
-                    case Type.Bid:
+                    case DataWrangler.Structures.Type.Bid:
                         codes.Add("EXCH_CODE_BID", exchCode);
                         break;
-                    case Type.Trade:
+                    case DataWrangler.Structures.Type.Trade:
                         codes.Add("EXCH_CODE_ASK", exchCode);
                         break;
                 }
@@ -342,7 +242,6 @@ namespace DataWrangler.HistoricalData
             }
         }
 
-        
         #endregion
     }
 }

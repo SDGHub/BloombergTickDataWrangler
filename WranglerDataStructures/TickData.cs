@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataWrangler
+namespace DataWrangler.Structures
 {
     // Data container for both live data event and historical tick data
     public enum Type { Trade = 0, Ask = 1, Bid = 2 }

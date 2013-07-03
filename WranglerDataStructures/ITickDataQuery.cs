@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataWrangler
+namespace DataWrangler.Structures
 {
     public interface ITickDataQuery
     {
@@ -11,6 +11,6 @@ namespace DataWrangler
         bool IncludeConditionCode { get; set; }
         bool IncludeExchangeCode { get; set; }
         List<string> Fields { get; set; }
-        object correlationIdObj { get; set; }
+        object CorrelationIdObj { get; set; }
     }
 }

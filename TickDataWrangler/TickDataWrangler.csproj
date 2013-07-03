@@ -7,8 +7,8 @@
     <ProjectGuid>{D09A9FA0-D3A9-4EEC-81B4-D0AA96928E46}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BlbgTickDataWrangler</RootNamespace>
-    <AssemblyName>BlbgTickDataWrangler</AssemblyName>
+    <RootNamespace>TickDataWrangler</RootNamespace>
+    <AssemblyName>TickDataWrangler</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

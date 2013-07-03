@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataWrangler.Structures;
 
 namespace DataWrangler.HistoricalData
 {
@@ -49,6 +50,7 @@ namespace DataWrangler.HistoricalData
             return new TickDataQuery()
             {
                 Security = queryParms.Security,
+                CorrelationIdObj = queryParms.CorrelationIdObj,
                 StartDate = start,
                 EndDate = end,
                 IncludeConditionCode = queryParms.IncludeConditionCode,
@@ -90,7 +92,7 @@ namespace DataWrangler.HistoricalData
         public bool IncludeConditionCode { get; set; }
         public bool IncludeExchangeCode { get; set; }
         public List<string> Fields { get; set; }
-        public object correlationIdObj { get; set; }
+        public object CorrelationIdObj { get; set; }
     }
 
     public class TickDataQuery : ITickDataQuery
@@ -101,7 +103,7 @@ namespace DataWrangler.HistoricalData
         public bool IncludeConditionCode { get; set; }
         public bool IncludeExchangeCode { get; set; }
         public List<string> Fields { get; set; }
-        public object correlationIdObj { get; set; }
+        public object CorrelationIdObj { get; set; }
     }
 
 }

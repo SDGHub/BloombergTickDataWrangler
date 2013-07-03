@@ -1,5 +1,5 @@
 ﻿using System;
-namespace WranglerDataStructures
+namespace DataWrangler.Structures
 {
     interface ISecurity
     {
@@ -7,6 +7,6 @@ namespace WranglerDataStructures
         bool HasTradeSize { get; }
         uint Id { get; }
         string Name { get; }
-        global::DataWrangler.Security.SecurityType SecType { get; }
+        global::DataWrangler.Structures.Security.SecurityType SecType { get; }
     }
 }

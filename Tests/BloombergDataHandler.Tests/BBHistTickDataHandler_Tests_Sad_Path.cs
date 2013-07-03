@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DataWrangler.Bloomberg;
+using DataWrangler.Structures;
 using BloombergDataHandler.Tests.Setups;
 
 namespace BloombergDataHandler.Tests
@@ -21,7 +22,8 @@ namespace BloombergDataHandler.Tests
          [ExpectedException(typeof(ArgumentNullException))]
          public void DataQueries_List_isNull_Or_Empty_Throws_ArgumentNullException()
          {
-             var  BBHist = new BloombergHistTickDataHandler(null);
+             var  BBHist = new BloombergHistTickDataHandler();
+             BBHist.LoadHistoricalData(null);
 
          }
 

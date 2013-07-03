@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataFeed = DataWrangler.BloombergRTDataProvider;
+using DataWrangler.Structures;
 
 namespace DataWrangler
 {
@@ -211,15 +212,15 @@ namespace DataWrangler
 
             switch (newData.Type)
             {
-                case Type.Ask:
+                case DataWrangler.Structures.Type.Ask:
                     currPrice = current.Ask;
                     hasSizeData = ((_securityObj.HasQuoteSize) && (newData.Size != current.AskVol));
                     break;
-                case Type.Bid:
+                case DataWrangler.Structures.Type.Bid:
                     currPrice = current.Bid;
                     hasSizeData = ((_securityObj.HasQuoteSize) && (newData.Size != current.BidVol));
                     break;
-                case Type.Trade:
+                case DataWrangler.Structures.Type.Trade:
                     currPrice = current.LastTrdPrice;
                     hasSizeData = (_securityObj.HasTradeSize);
                     break;

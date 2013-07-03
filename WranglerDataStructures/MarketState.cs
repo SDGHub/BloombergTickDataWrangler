@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataWrangler
+namespace DataWrangler.Structures
 {
     // Data container: Holds processed tick data and analytics
     public enum MktStateType { Trade = 0, Ask = 1, Bid = 2, Summary = -1, Duplicate = -2 }
@@ -527,7 +527,7 @@ namespace DataWrangler
 
             // output string 
             dataStr.Append(_securityObj.Name);
-            dataStr.Append(del); dataStr.Append(TimeStamp.ToString("yyyy/MM/dd hh:mm:ss.ffffff"));
+            dataStr.Append(del); dataStr.Append(TimeStamp.ToString("yyyy/MM/dd HH:mm:ss.ffffff"));
             dataStr.Append(del); dataStr.Append(BinCnt.ToString());
             dataStr.Append(del); dataStr.Append(StateType.ToString());
             dataStr.Append(del); dataStr.Append(Bid.ToString());

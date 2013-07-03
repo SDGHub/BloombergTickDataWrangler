@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DataWrangler;
+using DataWrangler.Structures;
 using DataWrangler.HistoricalData;
 using DataWrangler.Bloomberg;
 using BloombergDataHandler.Tests.Setups;
@@ -24,7 +25,7 @@ namespace BloombergDataHandler.Tests
             var testParams = _setups.TestParams_End_Before_Start();
             var queryGenerator = new TickDataQueries();
             var response = queryGenerator.GetTickDataQueries(testParams);
-            Assert.IsInstanceOfType(response,typeof(List<TickDataQuery>));
+            Assert.IsInstanceOfType(response,typeof(List<ITickDataQuery>));
         }
         
         [TestMethod]

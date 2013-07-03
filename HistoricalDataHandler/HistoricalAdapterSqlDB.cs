@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using DataWrangler.Structures;
 
 namespace DataWrangler.HistoricalData
 {
@@ -13,10 +14,6 @@ namespace DataWrangler.HistoricalData
         public HistoricalDataHandler DataHandler { get; set; }
         
         public List<ITickDataQuery> Queries { get; set; }
-
-        private readonly Dictionary<string, DataFactory> _securities = new Dictionary<string, DataFactory>();
-        
-        private readonly List<DataInterval> _intervals = new List<DataInterval>();
 
         public HistoricalAdapterSqlDB(string dsPath)
         {
@@ -32,56 +29,32 @@ namespace DataWrangler.HistoricalData
             Console.WriteLine("HistoricalDataHandler DSConnected = {0}", DsConnected);
             Console.WriteLine(" ");
         }
-
-        public void AddSecurity(DataFactory dataFactoryObject)
+        
+        public void LoadHistoricalData(List<ITickDataQuery> queries)
         {
-            _securities.Add(dataFactoryObject.SecurityName, dataFactoryObject);
-        }
-
-        public void AddDataInterval(DateTime start, DateTime end)
-        {
-            if (end > start)
-            {
-                _intervals.Add(new DataInterval { Start = start, End = end });
-            }
-            else
-            {
-                Console.WriteLine("Bad interval! end {0} <= start {1}! ", end, start);
-            }
-        }
-
-        public List<TickData> LoadHistoricalData()
-        {
-            foreach (DataInterval interval in _intervals)
+            foreach (ITickDataQuery tdQuery in queries)
             {
 
-                Console.WriteLine("Requesting data from {0} to {1}", interval.Start.ToLongTimeString(), interval.End.ToLongTimeString());
-
-                foreach (var sec in _securities)
+                Console.WriteLine("Requesting {0} historical data from {1} to {2}",tdQuery.Security, tdQuery.StartDate.ToLongTimeString(), tdQuery.EndDate.ToLongTimeString());
+                
+                DataTable data = _histDs.getTickDataSeries(tdQuery.Security, tdQuery.StartDate, tdQuery.EndDate);
+                if (data.Rows.Count > 0)
                 {
-
-                    Console.WriteLine(" ");
-                    Console.WriteLine("Requesting {0} historical data", sec.Key);
-                    DataTable data = _histDs.getTickDataSeries(sec.Key, interval.Start, interval.End);
-                    if (data.Rows.Count > 0)
-                    {
-                        List<TickData> tickData = ConvertToTickData(sec.Value, data);
-                        DataHandler.ParseTickDataList(sec.Value, tickData);
-                    }
+                    List<TickData> tickData = ConvertToTickData(tdQuery, data);
+                    DataHandler.ParseTickDataList(tdQuery.CorrelationIdObj, tickData);
                 }
             }
-            return new List<TickData>(); 
         }
 
-        private List<TickData> ConvertToTickData(DataFactory factory, DataTable dt)
+        private List<TickData> ConvertToTickData(ITickDataQuery tdQuery, DataTable dt)
         {
-            Console.WriteLine("Parsing {0} DataTable({1} rows)", factory.SecurityName, dt.Rows.Count.ToString());
+            Console.WriteLine("Parsing {0} DataTable({1} rows)", tdQuery.Security, dt.Rows.Count.ToString());
 
             var tickData = new List<TickData>();
 
             foreach (DataRow row in dt.Rows)
             {
-                TickData tick = DataRowToTickData(factory, row);
+                TickData tick = DataRowToTickData(tdQuery, row);
                 if (tick != null)
                 {
                     tickData.Add(tick);
@@ -91,14 +64,16 @@ namespace DataWrangler.HistoricalData
             return tickData;
         }
 
-        private static TickData DataRowToTickData(DataFactory factory, DataRow row)
+        private static TickData DataRowToTickData(ITickDataQuery tdQuery, DataRow row)
         {
-            Type type;
+            DataWrangler.Structures.Type type;
             DateTime timeStamp;
             Double price;
             uint size;
             Dictionary<string, string> codes = null;
             TickData tick = null;
+
+            bool successfulParse = false;
 
             // try parse dataRow for tick data values
             if (Enum.TryParse(row[0].ToString(), out type))
@@ -122,19 +97,23 @@ namespace DataWrangler.HistoricalData
                                     Price = price,
                                     Size = size,
                                     Codes = codes,
-                                    Security = factory.SecurityObj.Name,
-                                    SecurityObj = factory.SecurityObj,
-                                    SecurityID = factory.SecurityObj.Id
+                                    Security = tdQuery.Security,
+                                    SecurityObj = tdQuery.CorrelationIdObj,
                                 };
 
-                                //Console.WriteLine(tick.ToString());
+                                successfulParse = true;
                             }
                         }
+
+            if (!successfulParse)
+                Console.WriteLine("Bad data row: type = {0}, time {1}, price {2}, size {3}, CCs = {4}, ECs = {5}", 
+                    row[0].ToString(), row[1].ToString(), row[2].ToString(), row[3].ToString(), row[4].ToString(), row[5].ToString());
+
 
             return tick;
         }
 
-        private static Dictionary<string, string> GetCodes(string condCode, string exchCode, Type type)
+        private static Dictionary<string, string> GetCodes(string condCode, string exchCode, DataWrangler.Structures.Type type)
         {
             var codes = new Dictionary<string, string>();
 
@@ -142,13 +121,13 @@ namespace DataWrangler.HistoricalData
             {
                 switch (type)
                 {
-                    case Type.Ask:
+                    case DataWrangler.Structures.Type.Ask:
                         codes.Add("EXCH_CODE_LAST", exchCode);
                         break;
-                    case Type.Bid:
+                    case DataWrangler.Structures.Type.Bid:
                         codes.Add("EXCH_CODE_BID", exchCode);
                         break;
-                    case Type.Trade:
+                    case DataWrangler.Structures.Type.Trade:
                         codes.Add("EXCH_CODE_ASK", exchCode);
                         break;
                 }
@@ -166,10 +145,5 @@ namespace DataWrangler.HistoricalData
             return codes;
         }
 
-        public struct DataInterval
-        {
-            public DateTime Start;
-            public DateTime End;
-        }
     }
 }

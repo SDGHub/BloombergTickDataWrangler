@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataType = DataWrangler.Type;
+using DataType = DataWrangler.Structures.Type;
 using CorrelationID = Bloomberglp.Blpapi.CorrelationID;
 using Element = Bloomberglp.Blpapi.Element;
 using Event = Bloomberglp.Blpapi.Event;
@@ -11,6 +11,7 @@ using Service = Bloomberglp.Blpapi.Service;
 using Session = Bloomberglp.Blpapi.Session;
 using SessionOptions = Bloomberglp.Blpapi.SessionOptions;
 using Subscription = Bloomberglp.Blpapi.Subscription;
+using DataWrangler.Structures;
 
 namespace DataWrangler
 {
@@ -25,13 +26,6 @@ namespace DataWrangler
         private static readonly Name DESCRIPTION = new Name("description");
         private static readonly Name ERROR_CODE = new Name("errorCode");
         private static readonly Name SOURCE = new Name("source");
-        //private static readonly Name SECURITY_ERROR = new Name("securityError");
-        //private static readonly Name MESSAGE = new Name("message");
-        //private static readonly Name RESPONSE_ERROR = new Name("responseError");
-        //private static readonly Name SECURITY_DATA = new Name("securityData");
-        //private static readonly Name FIELD_EXCEPTIONS = new Name("fieldExceptions");
-        //private static readonly Name ERROR_INFO = new Name("errorInfo");
-        //private static readonly Name FORCE_DELAY = new Name(" [FD]");
 
         private SessionOptions d_sessionOptions;
         private Session d_session;
@@ -110,10 +104,6 @@ namespace DataWrangler
 
         #region methods
 
-        /// <summary>
-        /// Add securities to data object
-        /// </summary>
-        /// <param name="securities"></param>
         public void AddSecurity(object dataFactoryObject, string security)
         {
             if (security.Trim().Length > 0)
@@ -122,11 +112,6 @@ namespace DataWrangler
             }
         }
 
-
-        /// <summary>
-        /// Add fields to data object
-        /// </summary>
-        /// <param name="fields"></param>
         public void addField(string field)
         {
             if (field.Trim().Length > 0)
@@ -146,10 +131,6 @@ namespace DataWrangler
             fields.Add("ALL_PRICE_COND_CODE");
         }
 
-        /// <summary>
-        /// Create session
-        /// </summary>
-        /// <returns></returns>
         private bool createSession()
         {
             if (d_session == null)
@@ -162,9 +143,6 @@ namespace DataWrangler
             return d_session.Start();
         }
 
-        /// <summary>
-        /// Stop all subscriptions
-        /// </summary>
         public void Stop()
         {
             if (d_subscriptions != null && d_isSubscribed)
@@ -175,9 +153,6 @@ namespace DataWrangler
             d_isSubscribed = false;
         }
 
-        /// <summary>
-        /// Subscribe to securities
-        /// </summary>
         public void Subscribe()
         {
             // create session
@@ -219,11 +194,6 @@ namespace DataWrangler
 
         #region Bloomberg API Events
 
-        /// <summary>
-        /// Data Event
-        /// </summary>
-        /// <param name="eventObj"></param>
-        /// <param name="session"></param>
         private void processEvent(Event eventObj, Session session)
         {
                 switch (eventObj.Type)
@@ -242,11 +212,6 @@ namespace DataWrangler
                 }
         }
 
-        /// <summary>
-        /// Process subscription data
-        /// </summary>
-        /// <param name="eventObj"></param>
-        /// <param name="session"></param>
         private void processRequestDataEvent(Event eventObj, Session session)
         {
             // process message
@@ -467,11 +432,6 @@ namespace DataWrangler
             throw new NotImplementedException();
         }
         
-        /// <summary>
-        /// Request status event
-        /// </summary>
-        /// <param name="eventObj"></param>
-        /// <param name="session"></param>
         private void processRequestStatusEvent(Event eventObj, Session session)
         {
             List<string> dataList = new List<string>();
@@ -521,11 +481,6 @@ namespace DataWrangler
             }
         }
 
-        /// <summary>
-        /// Process miscellaneous events
-        /// </summary>
-        /// <param name="eventObj"></param>
-        /// <param name="session"></param>
         private void processMiscEvents(Event eventObj, Session session)
         {
             foreach (Message msg in eventObj)

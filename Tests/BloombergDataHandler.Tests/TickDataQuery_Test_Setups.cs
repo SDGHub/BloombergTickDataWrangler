@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DataWrangler;
+using DataWrangler.Structures;
 using DataWrangler.HistoricalData;
 using DataWrangler.Bloomberg;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataWrangler.Bloomberg;
+using DataWrangler;
+using DataWrangler.Structures;
+using DataWrangler.HistoricalData;
 using Event = Bloomberglp.Blpapi.Event;
 using Message = Bloomberglp.Blpapi.Message;
 using Element = Bloomberglp.Blpapi.Element;
@@ -17,7 +19,7 @@ namespace DataWrangler.Bloomberg
 {
     public delegate void BBHTDEventHandler(object sender, EventArgs e);
 
-    public class BloombergHistTickDataHandler
+    public class BloombergHistTickDataHandler: IHistoricalAdapter
     {
         public event BBHTDEventHandler BBHTDUpdate;
         public void OnBBHTDUpdate(BBHTDEventArgs e)
@@ -87,18 +89,35 @@ namespace DataWrangler.Bloomberg
         private const string serverHost = "localhost";
         private const int serverPort = 8194;
         private int requestPointer = 0;
-        private long correlationIDCnt = 0;    
-   
-        //!mktSummary.Complete
-        
-        public BloombergHistTickDataHandler(List<ITickDataQuery> tickDataQueries)
-        {
-            if (tickDataQueries == null || tickDataQueries.Count == 0)
-                throw new ArgumentNullException("(List<TickDataQuery>", "TickDataQueries list must contain at least one query");
+        private int partialResponseCnt = 0;
 
-            TickDataQueries = tickDataQueries;
+        // IHistoricalAdapter requirements
+        public HistoricalDataHandler DataHandler { get; set; }
+        public List<ITickDataQuery> Queries { get; set; }   
+        
+        public BloombergHistTickDataHandler()
+        {
+            TickDataQueries = new List<ITickDataQuery>(); 
             Asynchronous = true;
             initializeSessionOptions();
+        }
+
+        public void LoadHistoricalData(List<ITickDataQuery> queries)
+        {
+            if (queries == null || queries.Count == 0)
+                throw new ArgumentNullException("(List<TickDataQuery>", "TickDataQueries list must contain at least one query");
+
+            if (TickDataQueries.Count < 1)
+            {
+                TickDataQueries = queries;
+            }
+            else
+            {
+                foreach (var query in queries)
+                {
+                    TickDataQueries.Add(query);
+                } 
+            }
         }
 
         private void initializeSessionOptions()
@@ -150,11 +169,26 @@ namespace DataWrangler.Bloomberg
             if (Session != null)
             {
                 requestPointer = 0;
+                partialResponseCnt = 0;
                 sendRequest(TickDataQueries[requestPointer]);
                 requestPointer++;
                 OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Begining Requests"));
                 return true;
             }
+            return false;
+        }
+
+        public bool SendNextRequest()
+        {
+            if (requestPointer <= TickDataQueries.Count - 1)
+            {
+                sendRequest(TickDataQueries[requestPointer]);
+                partialResponseCnt = 0;
+                requestPointer++;
+                return true;
+            }
+
+             OnBBHTDUpdate(new BBHTDEventArgs(EventType.DataMsg,"COMPLETED"));
             return false;
         }
 
@@ -170,7 +204,11 @@ namespace DataWrangler.Bloomberg
             Session.Cancel(cID);
             Session.SendRequest(request, cID);
 
-            OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Submitted request. Waiting for response..."));
+            var msg = String.Format("Submitted request: {0} ({1} ~ {2}) ...",
+                tickDataQuery.Security,
+                tickDataQuery.StartDate.ToString("yy/MM/dd HH:mm:ss"),
+                tickDataQuery.EndDate.ToString("yy/MM/dd HH:mm:ss"));
+            OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, msg));
 
             if (!Asynchronous) return synchronousProcessing();
 
@@ -192,13 +230,11 @@ namespace DataWrangler.Bloomberg
             request.Set("includeConditionCodes", query.IncludeConditionCode);
             request.Set("includeExchangeCodes", query.IncludeExchangeCode);
 
-            request.Set("startDateTime", 
-                new BDateTime(query.StartDate.Year, query.StartDate.Month, query.StartDate.Day,
-                    query.StartDate.Hour, query.StartDate.Minute, query.StartDate.Second, 0));
+            request.Set("startDateTime",
+                new BDateTime(query.StartDate));
 
             request.Set("endDateTime", 
-                new BDateTime(query.EndDate.Year, query.EndDate.Month, query.EndDate.Day,
-                query.EndDate.Hour, query.EndDate.Minute, query.EndDate.Second, 0));
+                new BDateTime(query.EndDate));
 
             return request;
 
@@ -226,11 +262,16 @@ namespace DataWrangler.Bloomberg
             switch (eventObj.Type)
             {
                 case Event.EventType.RESPONSE: // final respose
+
+                    OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg,
+                        String.Format("Response ({0} of {1})  received", requestPointer.ToString(), TickDataQueries.Count.ToString())));
                     processRequestDataEvent(eventObj, session);
-                    OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "RESPONSE"));
+                    SendNextRequest();
                     break;
-                case Event.EventType.PARTIAL_RESPONSE:
-                    OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "PARTIAL_RESPONSE"));
+                case Event.EventType.PARTIAL_RESPONSE:                     
+                    partialResponseCnt ++;
+                    OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Pratial Response #" + partialResponseCnt.ToString()));
+                    processRequestDataEvent(eventObj, session);
                     break;
                 default:
                     // processMiscEvents(eventObj, session);
@@ -260,9 +301,9 @@ namespace DataWrangler.Bloomberg
                         }
                     }
 
-                    // process tick data
                     Element tickDataArray = msg.GetElement("tickData");
-                    int numberOfTicks = tickDataArray.NumValues;
+                    var tickData = new List<TickData>();
+
                     foreach (Element blmbTickDataElement in tickDataArray.Elements)
                     {
                         if (blmbTickDataElement.Name.ToString() == "tickData")
@@ -272,30 +313,25 @@ namespace DataWrangler.Bloomberg
                                 for (int pointIndex = 0; pointIndex < blmbTickDataElement.NumValues; pointIndex++)
                                 {
                                     TickData tick = BBEventToTickData(blmbTickDataElement.GetValueAsElement(pointIndex), tickDateQuery);
-
-                                    //if (!mktSummary.Complete)
-                                    //{
-                                    //    mktSummary = PrepareMktSummaryEvent(factory, mktSummary, tick);
-                                    //    _mktSummaryEvents[factory] = mktSummary;
-                                    //}
-                                    //else
-                                    //{
-                                    //    AddHistDataToCache(factory, tick);
-                                    //}
+                                    tickData.Add(tick);
+                                    //Console.WriteLine(tick.ToString());
                                 }
                             }
-                        } // end if
-                    } // end foreach
+                        }
+                    }
+
+                    DataHandler.ParseTickDataList(tickDateQuery.CorrelationIdObj, tickData);
+               
                 }
             }
         }
 
         private TickData BBEventToTickData(Element bbElement, ITickDataQuery tickDateQuery)
         {
-
             var dataPoint = new TickData()
             {
-                Security = tickDateQuery.Security
+                Security = tickDateQuery.Security,
+                SecurityObj = tickDateQuery.CorrelationIdObj
             };
 
 
@@ -305,14 +341,47 @@ namespace DataWrangler.Bloomberg
                 && bbElement.HasElement("size"))
             {
                 // tick field data
-                dataPoint.TimeStamp = bbElement.GetElementAsTime("time").ToSystemDateTime();
+                DateTime t = bbElement.GetElementAsTime("time").ToSystemDateTime().ToUniversalTime();
+                dataPoint.TimeStamp = Convert.ToDateTime(bbElement.GetElementAsString("time"));//.ToUniversalTime();
                 dataPoint.Price = bbElement.GetElementAsFloat64("value");
-                dataPoint.Size = (uint)bbElement.GetElementAsInt32("value");
-                Enum.TryParse(bbElement.GetElementAsString("type"), out dataPoint.Type);
+                dataPoint.Size = (uint)bbElement.GetElementAsInt32("size");
+                string msgType = bbElement.GetElementAsString("type");
+                Enum.TryParse(msgType, true, out dataPoint.Type);
             }
 
-
             return dataPoint;
+        }
+
+        private static Dictionary<string, string> GetCodes(string condCode, string exchCode, DataWrangler.Structures.Type type)
+        {
+            var codes = new Dictionary<string, string>();
+
+            if (exchCode != String.Empty)
+            {
+                switch (type)
+                {
+                    case DataWrangler.Structures.Type.Ask:
+                        codes.Add("EXCH_CODE_LAST", exchCode);
+                        break;
+                    case DataWrangler.Structures.Type.Bid:
+                        codes.Add("EXCH_CODE_BID", exchCode);
+                        break;
+                    case DataWrangler.Structures.Type.Trade:
+                        codes.Add("EXCH_CODE_ASK", exchCode);
+                        break;
+                }
+            }
+            else
+            {
+                if (condCode != String.Empty)
+                {
+                    codes.Add("COND_CODE", condCode);
+                }
+            }
+
+            if (codes.Count == 0) codes = null;
+
+            return codes;
         }
 
         private void processMiscEvents(Event eventObj, Session session)
@@ -357,16 +426,6 @@ namespace DataWrangler.Bloomberg
             fields.Add("exchangeCode");
             return fields;
         }
-
-        private struct MktSummaryEvent
-        {
-            public DateTime EventTime;
-            public TickData Bid;
-            public TickData Ask;
-            public TickData Trade;
-            public bool Complete;
-           }
-
     }
 
 }
