@@ -46,6 +46,15 @@ namespace DataWrangler.Bloomberg
                 this.Ask = null;
                 this.Trade = null;
             }
+            public BBHTDEventArgs(EventType msgType, string message, object cObj)
+            {
+                this.MsgType = msgType;
+                this.Msg = message;
+                this.cObj = cObj;
+                this.Bid = null;
+                this.Ask = null;
+                this.Trade = null;
+            }
             public BBHTDEventArgs(EventType msgType, TickType dataType, string message, object cObj)
             {
                 this.MsgType = msgType;
@@ -82,6 +91,7 @@ namespace DataWrangler.Bloomberg
         public enum TickType { Bid, Ask, Trade, All, None }
 
         public bool Asynchronous { get; set; }
+        public bool AutoChainQueries { get; set; }
         public List<ITickDataQuery> TickDataQueries { get; private set; }
         public SessionOptions SessionOptions { get; private set; }
         public Session Session { get; private set; }
@@ -188,7 +198,7 @@ namespace DataWrangler.Bloomberg
                 return true;
             }
 
-             OnBBHTDUpdate(new BBHTDEventArgs(EventType.DataMsg,"COMPLETED"));
+             OnBBHTDUpdate(new BBHTDEventArgs(EventType.DataMsg,"Completed all"));
             return false;
         }
 
@@ -265,11 +275,26 @@ namespace DataWrangler.Bloomberg
 
                     OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg,
                         String.Format("Response ({0} of {1})  received", requestPointer.ToString(), TickDataQueries.Count.ToString())));
+
                     processRequestDataEvent(eventObj, session);
-                    SendNextRequest();
+
+                    foreach (Message msg in eventObj)
+                    {
+                        if (msg.MessageType.Equals(Bloomberglp.Blpapi.Name.GetName("IntradayTickResponse")))
+                        {
+                            CorrelationID cID = msg.CorrelationID;
+                            var tickDateQuery = (ITickDataQuery)msg.CorrelationID.Object;
+                            OnBBHTDUpdate(new BBHTDEventArgs(EventType.DataMsg,
+                                String.Format("Completed ({0} of {1})", requestPointer.ToString(), TickDataQueries.Count.ToString()), tickDateQuery));
+                        }
+                    }
+
+                    if (AutoChainQueries)
+                        SendNextRequest();
+
                     break;
-                case Event.EventType.PARTIAL_RESPONSE:                     
-                    partialResponseCnt ++;
+                case Event.EventType.PARTIAL_RESPONSE:
+                    partialResponseCnt++;
                     OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Pratial Response #" + partialResponseCnt.ToString()));
                     processRequestDataEvent(eventObj, session);
                     break;
@@ -341,8 +366,8 @@ namespace DataWrangler.Bloomberg
                 && bbElement.HasElement("size"))
             {
                 // tick field data
-                DateTime t = bbElement.GetElementAsTime("time").ToSystemDateTime().ToUniversalTime();
-                dataPoint.TimeStamp = Convert.ToDateTime(bbElement.GetElementAsString("time"));//.ToUniversalTime();
+                dataPoint.TimeStamp = bbElement.GetElementAsTime("time").ToSystemDateTime();
+                //dataPoint.TimeStamp = Convert.ToDateTime(bbElement.GetElementAsString("time"));//.ToUniversalTime();
                 dataPoint.Price = bbElement.GetElementAsFloat64("value");
                 dataPoint.Size = (uint)bbElement.GetElementAsInt32("size");
                 string msgType = bbElement.GetElementAsString("type");

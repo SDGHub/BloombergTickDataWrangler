@@ -29,8 +29,10 @@ namespace DataWrangler
         }
         public MarketState CurrentInterval { get { return GetLatestState(); } }
         public bool MktInitialized { get { return _mktInitialized; } }
-
         bool _mktInitialized;
+
+        public DateTime LatestTimeBin { get{ return _latestTimeBin;}}
+        DateTime _latestTimeBin;
 
         public bool LogEachTick = false;
 
@@ -59,6 +61,14 @@ namespace DataWrangler
         public void AddReferenceToMarkets(MarketAggregator markets)
         {
             _markets = markets;
+        }
+
+        public void Reset()
+        {
+            _marketData.Clear();
+            _latestTimeBin = DateTime.MinValue;
+            _mktInitialized = false;
+
         }
 
         private void RTDataHandler(object sender, EventArgs e)
@@ -119,6 +129,7 @@ namespace DataWrangler
             {
                 _mktInitialized = true;
                 _marketData.Add(timeBin, new SortedDictionary<uint, MarketState>());
+                _latestTimeBin = timeBin > _latestTimeBin ? timeBin : _latestTimeBin;
 
                 lock (_marketData[timeBin])
                 {
@@ -150,6 +161,7 @@ namespace DataWrangler
                     if (!_marketData.ContainsKey(newData.TimeStamp))
                     {
                         _marketData.Add(newData.TimeStamp, new SortedDictionary<uint, MarketState>());
+                        _latestTimeBin = newData.TimeStamp > _latestTimeBin ? newData.TimeStamp : _latestTimeBin;
                         addedNewTimeStamp = true;
                     }
 
@@ -182,7 +194,8 @@ namespace DataWrangler
         private DateTime getCurrentInterval(DateTime dataTimeStamp)
         {
             // latest timeStamp in collection
-            DateTime maxTimeStamp = _marketData.ElementAt(_marketData.Count - 1).Key;
+            //DateTime maxTimeStamp = _marketData.ElementAt(_marketData.Count - 1).Key;
+            DateTime maxTimeStamp = _latestTimeBin;
 
             // use this timeStamp unless the dateTime of data is before max dateTime
             if (maxTimeStamp <= dataTimeStamp)
@@ -259,20 +272,23 @@ namespace DataWrangler
             return DuplicateTick(_marketData[currTimeBinsTimeStamp], timeStamp);
         }
 
-        public SortedDictionary<uint, MarketState> DuplicateTick(SortedDictionary<uint, MarketState> mostRecentState, DateTime timestamp)
+        public SortedDictionary<uint, MarketState> DuplicateTick(SortedDictionary<uint, MarketState> mostRecentState, DateTime timeStamp)
         {
             // create a new time stamp if it doesn't exist (Only exist if there is a race condition)
-            if (!_marketData.ContainsKey(timestamp))
-                _marketData.Add(timestamp, new SortedDictionary<uint, MarketState>());
-
-            var marketDataForTimeStamp = _marketData[timestamp];
+            if (!_marketData.ContainsKey(timeStamp))
+            { 
+                _marketData.Add(timeStamp, new SortedDictionary<uint, MarketState>());
+                _latestTimeBin = timeStamp > _latestTimeBin ? timeStamp : _latestTimeBin;
+            }
+                
+            var marketDataForTimeStamp = _marketData[timeStamp];
             lock (marketDataForTimeStamp)
             {
                 DateTime newTimeStamp = DateTime.MinValue;
 
                 var prevState = mostRecentState[(uint)mostRecentState.Count - 1];
-                var newState = new MarketState(_securityObj, prevState, timestamp);
-                SortedDictionary<uint, MarketState> timeBin = _marketData[timestamp];
+                var newState = new MarketState(_securityObj, prevState, timeStamp);
+                SortedDictionary<uint, MarketState> timeBin = _marketData[timeStamp];
 
                 newState.BinCnt = (uint)marketDataForTimeStamp.Count;
                 marketDataForTimeStamp.Add(newState.BinCnt, newState);
@@ -285,7 +301,7 @@ namespace DataWrangler
                 }
             }
 
-            return _marketData[timestamp];
+            return _marketData[timeStamp];
         }
 
 

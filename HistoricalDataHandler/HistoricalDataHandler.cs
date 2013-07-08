@@ -8,11 +8,7 @@ namespace DataWrangler.HistoricalData
 {
     public class HistoricalDataHandler
     {
-        private readonly QRDataSource.QRDataSource _histDs = new QRDataSource.QRDataSource();
-        public bool DsInitialized = false;
-        public bool DsConnected = false;
-
-        private IHistoricalAdapter _historicalAdapter;
+        public List<IHistoricalAdapter> HistoricalAdapters = new List<IHistoricalAdapter>();
 
         // cached historical data
         public SortedDictionary<DateTime, Dictionary<DataFactory, List<TickData>>> CachedTickData
@@ -21,10 +17,13 @@ namespace DataWrangler.HistoricalData
         private readonly Dictionary<DataFactory, MktSummaryEvent>
             _mktSummaryEvents = new Dictionary<DataFactory, MktSummaryEvent>();
  
-        public HistoricalDataHandler(IHistoricalAdapter adapter)
+        public HistoricalDataHandler()
         {
-            _historicalAdapter = adapter;
-            _historicalAdapter.DataHandler = this;
+        }
+
+        public void AddHistoricalAdapter(IHistoricalAdapter historicalAdapter)
+        {
+            HistoricalAdapters.Add(historicalAdapter);
         }
 
         #region Historical Data Caching

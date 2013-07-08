@@ -14,5 +14,11 @@ namespace DataWrangler.HistoricalData
 
         void LoadHistoricalData(List<ITickDataQuery> queries);
 
+        bool ConnectAndOpenSession();
+
+        bool SendHistTickDataRequest();
+
+        bool SendNextRequest();
+
     }
 }

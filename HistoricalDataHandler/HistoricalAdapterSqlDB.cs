@@ -30,6 +30,22 @@ namespace DataWrangler.HistoricalData
             Console.WriteLine(" ");
         }
         
+        public bool ConnectAndOpenSession()
+        {
+            return true;
+        }
+
+        public bool SendHistTickDataRequest()
+        {
+
+            return true;
+        }
+
+        public bool SendNextRequest()
+        {
+
+            return true;
+        }
         public void LoadHistoricalData(List<ITickDataQuery> queries)
         {
             foreach (ITickDataQuery tdQuery in queries)

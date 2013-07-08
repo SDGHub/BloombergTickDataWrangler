@@ -104,6 +104,7 @@ namespace DataWrangler.HistoricalData
         public bool IncludeExchangeCode { get; set; }
         public List<string> Fields { get; set; }
         public object CorrelationIdObj { get; set; }
+
     }
 
 }

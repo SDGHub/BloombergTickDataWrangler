@@ -87,6 +87,16 @@ namespace DataWrangler
             }
         }
 
+        public void Reset()
+        {
+            foreach (var factory in _securitites)
+            {
+                factory.Reset();
+                _lastState = DateTime.MinValue;
+                Markets = new SortedDictionary<DateTime, Dictionary<Security, SortedDictionary<uint, MarketState>>>();
+            }
+        }
+
         public void BatchWriteOutData(OutPutType outPutMode)
         {
             BatchWriteOutData(outPutMode, OutPutMktMode.AggregatedMkts, String.Empty, 0);
@@ -145,7 +155,7 @@ namespace DataWrangler
                         MktsOutPut[security.Key].header = mktHeaderString;
                     }
 
-                    Console.WriteLine(allMktsHeader.ToString());
+                    //Console.WriteLine(allMktsHeader.ToString());
                     dataCacheAll.Add(allMktsHeader.ToString());
                     headerCreated = true;
                 }
