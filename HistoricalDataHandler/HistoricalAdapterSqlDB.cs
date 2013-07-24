@@ -5,66 +5,224 @@ using DataWrangler.Structures;
 
 namespace DataWrangler.HistoricalData
 {
+    public delegate void HistTDEventHandler(object sender, EventArgs e);
+
     public class HistoricalAdapterSqlDB : IHistoricalAdapter
     {
+        public enum EventType { StatusMsg, DataMsg, DataInit, ErrorMsg }
+        public enum TickType { Bid, Ask, Trade, All, None }
+
+        public event HistTDEventHandler HistTDUpdate;
+        public void OnHistTDUpdate(HistTDEventArgs e)
+        {
+            if (HistTDUpdate != null)
+                HistTDUpdate(this, e);
+        }
+
+        public class HistTDEventArgs : EventArgs
+        {
+            public string Msg { get; set; }
+            public object cObj { get; set; }
+            public TickData Trade { get; set; }
+            public TickData Bid { get; set; }
+            public TickData Ask { get; set; }
+            public EventType MsgType;
+            public TickType DataType;
+            public HistTDEventArgs(EventType msgType, string message)
+            {
+                this.MsgType = msgType;
+                this.Msg = message;
+                this.cObj = null;
+                this.Bid = null;
+                this.Ask = null;
+                this.Trade = null;
+            }
+            public HistTDEventArgs(EventType msgType, string message, object cObj)
+            {
+                this.MsgType = msgType;
+                this.Msg = message;
+                this.cObj = cObj;
+                this.Bid = null;
+                this.Ask = null;
+                this.Trade = null;
+            }
+            public HistTDEventArgs(EventType msgType, TickType dataType, string message, object cObj)
+            {
+                this.MsgType = msgType;
+                this.DataType = dataType;
+                this.Msg = message;
+                this.cObj = cObj;
+                this.Bid = null;
+                this.Ask = null;
+                this.Trade = null;
+            }
+            public HistTDEventArgs(EventType msgType, TickType dataType, object cObj, TickData Bid, TickData Ask, TickData Trade)
+            {
+                this.MsgType = msgType;
+                this.DataType = dataType;
+                this.Msg = string.Empty;
+                this.cObj = cObj;
+                this.Bid = Bid;
+                this.Ask = Ask;
+                this.Trade = Trade;
+            }
+        }
+
+        public List<IHistoricalAdapter> HistoricalAdapters = new List<IHistoricalAdapter>();       
+
         private readonly QRDataSource.QRDataSource _histDs = new QRDataSource.QRDataSource();
         public bool DsInitialized = false;
         public bool DsConnected = false;
 
         public HistoricalDataHandler DataHandler { get; set; }
-        
-        public List<ITickDataQuery> Queries { get; set; }
+
+        public List<ITickDataQuery> Queries { get { return _queries; } set { _queries = value; } }
+        private List<ITickDataQuery> _queries = new List<ITickDataQuery>();
+
+        private int requestPointer = 0;
 
         public HistoricalAdapterSqlDB(string dsPath)
         {
             _histDs.loadDataSource(dsPath);
-            DsInitialized = _histDs.initialized;
 
-            if (DsInitialized)
-            {
-                DsConnected = _histDs.getSQLconnection();
-            }
-
-            Console.WriteLine("HistoricalDataHandler DSInitialized = {0}", DsInitialized);
-            Console.WriteLine("HistoricalDataHandler DSConnected = {0}", DsConnected);
-            Console.WriteLine(" ");
+            OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg, String.Format("HistoricalDataHandler DSInitialized = {0}", DsInitialized)));
+            OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg, String.Format("HistoricalDataHandler DSConnected = {0}", DsInitialized)));
         }
         
         public bool ConnectAndOpenSession()
         {
-            return true;
+            DsInitialized = _histDs.initialized;
+
+            if (DsInitialized)
+            {
+                return DsConnected = _histDs.getSQLconnection();
+            }
+
+            return false;
         }
 
         public bool SendHistTickDataRequest()
         {
+
+            if (_queries.Count < 1)
+            {
+                OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg, "No queries loaded"));
+                return false;
+            }
+
+            OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg, String.Format("Beginning Requests {0}", _queries[0].Security.ToString())));
+
+            sendRequest(_queries[0]);
 
             return true;
         }
 
         public bool SendNextRequest()
         {
-
-            return true;
-        }
-        public void LoadHistoricalData(List<ITickDataQuery> queries)
-        {
-            foreach (ITickDataQuery tdQuery in queries)
+            if (requestPointer <= _queries.Count - 1)
             {
+                sendRequest(_queries[requestPointer]);
+                return true;
+            }
 
-                Console.WriteLine("Requesting {0} historical data from {1} to {2}",tdQuery.Security, tdQuery.StartDate.ToLongTimeString(), tdQuery.EndDate.ToLongTimeString());
-                
-                DataTable data = _histDs.getTickDataSeries(tdQuery.Security, tdQuery.StartDate, tdQuery.EndDate);
+            OnHistTDUpdate(new HistTDEventArgs(EventType.DataMsg, "Completed all"));
+            return false;
+        }
+
+        private void sendRequest(ITickDataQuery tdQuery, bool useBatching = true)
+        {
+            requestPointer++;
+
+            List<ITickDataQuery> batchedQueries = new List<ITickDataQuery>();
+
+
+            batchedQueries.Add(tdQuery);
+            if (useBatching)
+            {
+                batchedQueries.Clear();
+                TimeSpan timeInterval = new TimeSpan(0, 60, 0);
+                batchedQueries = generateBatchedQueries(getBatchedTimes(tdQuery.StartDate, tdQuery.EndDate, timeInterval), tdQuery, timeInterval);
+            }
+
+            int partialCnt = 1; 
+            foreach (var query in batchedQueries)
+            {
+                DataTable data = _histDs.getTickDataSeries(query.Security, query.StartDate, query.EndDate);
+
+                OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg,
+                    String.Format("{0}: SQL Partial Response ({1} of {2})", query.Security, partialCnt.ToString(), batchedQueries.Count.ToString())));
+
                 if (data.Rows.Count > 0)
                 {
                     List<TickData> tickData = ConvertToTickData(tdQuery, data);
                     DataHandler.ParseTickDataList(tdQuery.CorrelationIdObj, tickData);
                 }
+
+                partialCnt++;
+
             }
+
+            OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg,
+                String.Format("{0}: SQL Response ({1} of {2})  received", tdQuery.Security, requestPointer.ToString(), _queries.Count.ToString())));
+
+            
+            OnHistTDUpdate(new HistTDEventArgs(EventType.DataMsg,
+             String.Format("Completed ({0} of {1})", requestPointer.ToString(), _queries.Count.ToString()), tdQuery));
+
+        }
+
+        private List<DateTime> getBatchedTimes(DateTime start, DateTime end, TimeSpan timeInterval)
+        {
+            var batchedTimes = new List<DateTime>();
+
+            var nextStart = start;
+            while (nextStart < end)
+            {
+                batchedTimes.Add(nextStart);
+                nextStart += timeInterval;
+            }
+
+            return batchedTimes;
+        }
+
+        private List<ITickDataQuery> generateBatchedQueries(List<DateTime> batchedTimes, ITickDataQuery baseQuery, TimeSpan timeInterval)
+        {
+            List<ITickDataQuery> queries = new List<ITickDataQuery>();
+            foreach (var nextstart in batchedTimes)
+            {
+
+                queries.Add(new TickDataQuery()
+                {
+                    Security = baseQuery.Security,
+                    StartDate = nextstart,
+                    EndDate = nextstart.AddTicks(-1) + timeInterval,
+                    Fields = baseQuery.Fields,
+                    CorrelationIdObj = baseQuery.CorrelationIdObj,
+                    IncludeConditionCode = baseQuery.IncludeConditionCode,
+                    IncludeExchangeCode = baseQuery.IncludeExchangeCode,
+                });
+            }
+
+            return queries;
+
+        }
+
+        public void Reset()
+        {
+            _queries.Clear();
+            requestPointer = 0;
+        }
+
+        public void AddDataQueries(List<ITickDataQuery> queries)
+        {
+            foreach (ITickDataQuery tdQuery in queries)
+                _queries.Add(tdQuery);
         }
 
         private List<TickData> ConvertToTickData(ITickDataQuery tdQuery, DataTable dt)
         {
-            Console.WriteLine("Parsing {0} DataTable({1} rows)", tdQuery.Security, dt.Rows.Count.ToString());
+            OnHistTDUpdate(new HistTDEventArgs(EventType.StatusMsg,
+                String.Format("{0}: Converting SQL to DataTable({1} rows)", tdQuery.Security, dt.Rows.Count.ToString())));
 
             var tickData = new List<TickData>();
 

@@ -17,6 +17,7 @@ namespace Bloomberg_Tick_Data_Wrangler
         private List<DataFactory> _factories = new List<DataFactory>();
         private Dictionary<string, bool> responded = new Dictionary<string, bool>();
         private HistoricalData.HistoricalDataHandler _histFeed = new HistoricalData.HistoricalDataHandler();
+        private bool useBB = false;
 
         public Main()
         {
@@ -25,7 +26,8 @@ namespace Bloomberg_Tick_Data_Wrangler
         }
 
         private void initializeDataHandler()
-        {
+        {      
+
             var queryGenerator = new TickDataQueries();
 
             var start = new DateTime(2013, 6, 4, 00, 00, 00);
@@ -33,6 +35,9 @@ namespace Bloomberg_Tick_Data_Wrangler
 
             setUpInsturment(start, end, "NKM3 Index", Security.SecurityType.IndexFuture);
             setUpInsturment(start, end, "NOM3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "NIM3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "JPY Curncy", Security.SecurityType.Curncy);
+
 
             foreach (var bbHist in _histFeed.HistoricalAdapters)
             {
@@ -72,35 +77,102 @@ namespace Bloomberg_Tick_Data_Wrangler
                     Security = q.Security,
                     StartDate = new DateTime(q.EndDate.Year, q.EndDate.Month, q.EndDate.Day, 7, 15, 00),
                     EndDate = new DateTime(q.EndDate.Year, q.EndDate.Month, q.EndDate.Day, 18, 20, 00),
+                    Fields = q.Fields,
+                    CorrelationIdObj = q.CorrelationIdObj,
                     IncludeConditionCode = q.IncludeConditionCode,
                     IncludeExchangeCode = q.IncludeExchangeCode,
                 });
 
                 q.StartDate = q.StartDate.AddHours(-1);
-                q.EndDate = new DateTime(q.EndDate.Year, q.EndDate.Month, q.EndDate.Day, 6, 25, 00);               
+                q.EndDate = new DateTime(q.EndDate.Year, q.EndDate.Month, q.EndDate.Day, 6, 20, 00);               
             }
 
-              // Historical Playback From Bloomberg             
-            var bbHistTickData = new BloombergHistTickDataHandler();
-            bbHistTickData.BBHTDUpdate += bbHistTickData_BBHTDUpdate;
-            bbHistTickData.DataHandler = _histFeed;
-            bbHistTickData.LoadHistoricalData(queries);
-            bbHistTickData.LoadHistoricalData(queriesPM);
-            _histFeed.AddHistoricalAdapter(bbHistTickData);
+
+            if (useBB)
+            {
+                // Historical playback From Bloomberg             
+                var histBBTickData = new BloombergHistTickDataHandler();
+                histBBTickData.BBHTDUpdate += histTickData_Update;
+
+                histBBTickData.AddDataQueries(queries);
+                histBBTickData.AddDataQueries(queriesPM);
+
+                histBBTickData.DataHandler = _histFeed;
+                _histFeed.AddHistoricalAdapter(histBBTickData);
+
+            }
+            else
+            {
+                // Historical playback from SQL DB
+                const string dsPath = "TickData.qbd";
+
+                var histTickData = new HistoricalData.HistoricalAdapterSqlDB(dsPath);
+                histTickData.HistTDUpdate += histTickData_Update;
+
+                histTickData.AddDataQueries(queries);
+                //histTickData.AddDataQueries(queriesPM);
+
+                histTickData.DataHandler = _histFeed;
+                _histFeed.AddHistoricalAdapter(histTickData);
+            }
+
+
+         
 
             responded.Add(security, false);
-            // pull historical data from SQL DB
-            // const string dsPath = "TickData.qbd";
-            // var histSqlDb = new HistoricalData.HistoricalAdapterSqlDB(dsPath);
-            // histSqlDb.LoadHistoricalData(NKH3Queries);
-            //_histFeed = new HistoricalData.HistoricalDataHandler(histSqlDb);           
-            //_histFeed.PlayBackData();
-            //const string filePath = @"C:\Users\Andre\Documents\BBDataSource\Market Aggregator OutPut\";
-            //_markets.BatchWriteOutData(MarketAggregator.OutPutType.FlatFile, MarketAggregator.OutPutMktMode.BothMkts, filePath, 11);
 
         }
+        
+        private void histTickData_Update(object sender, EventArgs e)
+        {
+            if (e is BloombergHistTickDataHandler.BBHTDEventArgs)
+            {
+                bbHistTickDataUpdate(sender, e);
+            }
+            else
+            {
 
-        private void bbHistTickData_BBHTDUpdate(object sender, EventArgs e)
+                if (e is HistoricalData.HistoricalAdapterSqlDB.HistTDEventArgs)
+                {
+                    sqlHistTickDataUpdate(sender, e);
+                }
+            }
+        }
+
+        private void sqlHistTickDataUpdate(object sender, EventArgs e)
+        {
+            if (e is HistoricalAdapterSqlDB.HistTDEventArgs)
+            {
+                var eventArgs = e as HistoricalData.HistoricalAdapterSqlDB.HistTDEventArgs;
+                switch (eventArgs.MsgType)
+                {
+                    case HistoricalAdapterSqlDB.EventType.DataInit:
+                        break;
+                    case HistoricalAdapterSqlDB.EventType.DataMsg:
+
+                        if (eventArgs.Msg.ToLower().Contains("completed"))
+                        {
+                            if (eventArgs.cObj is ITickDataQuery)
+                            {
+                                var query = (ITickDataQuery)eventArgs.cObj;
+                                playBackAndWriteOut(query);
+                            }
+                        }
+
+                        break;
+                    case HistoricalAdapterSqlDB.EventType.ErrorMsg:
+                        break;
+                    case HistoricalAdapterSqlDB.EventType.StatusMsg:
+                        Console.WriteLine(eventArgs.Msg);
+                        appendToTextBox(eventArgs.Msg);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void bbHistTickDataUpdate(object sender, EventArgs e)
         {
             if (e is BloombergHistTickDataHandler.BBHTDEventArgs)
             {
@@ -113,7 +185,8 @@ namespace Bloomberg_Tick_Data_Wrangler
 
                         if (eventArgs.Msg.ToLower().Contains("completed"))
                         {
-                            playBackAndWriteOut(eventArgs);
+                            var query = (ITickDataQuery)eventArgs.cObj;
+                            playBackAndWriteOut(query);
                         }
 
                         break;
@@ -129,49 +202,54 @@ namespace Bloomberg_Tick_Data_Wrangler
             }
         }
 
-        private void playBackAndWriteOut(BloombergHistTickDataHandler.BBHTDEventArgs eventArgs)
+        private void playBackAndWriteOut(ITickDataQuery query)
         {
-            if (eventArgs.cObj is ITickDataQuery)
+            responded[query.Security] = true;
+
+            bool allDone = true;
+            foreach (var received in responded)
             {
-                var query = (ITickDataQuery)eventArgs.cObj;
-                responded[query.Security] = true;
+                if (!received.Value) allDone = false;
+            }
 
-                bool allDone = true;
-                foreach(var received in responded)
+            if (allDone)
+            {
+                //query.Security
+                Console.WriteLine("Download Completed");
+                appendToTextBox("Download Completed. Playback started ...");
+
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+                _histFeed.PlayBackData();
+                sw.Stop();
+
+                appendToTextBox(String.Format("Playback Completed in {0} secs", sw.Elapsed.ToString()));
+                appendToTextBox("Writing to file");
+                const string filePath = @"C:\Users\Andre\Documents\BBDataSource\Market Aggregator OutPut\";
+
+                // use PM suffix on evening session files
+                string fileNameSuffix = (query.EndDate.Hour < 7) ? fileNameSuffix = "" : fileNameSuffix = "_PM";
+                sw.Reset();
+                sw.Start();
+                _markets.BatchWriteOutData(MarketAggregator.OutPutType.FlatFile, MarketAggregator.OutPutMktMode.SeperateAndAggregated, filePath, 25, fileNameSuffix);
+                sw.Stop();
+
+                appendToTextBox(String.Format("Completed file writeout in {0} secs", sw.Elapsed.ToString()));
+
+                _markets.Reset();
+                _histFeed.Reset();
+
+                foreach (var factory in _factories)
+                    responded[factory.SecurityName] = false;
+
+                foreach (var bbHist in _histFeed.HistoricalAdapters)
                 {
-                    if (!received.Value) allDone = false;
-                }
-
-                if (allDone)
-                {
-                    //query.Security
-                    Console.WriteLine("Download Completed");
-                    appendToTextBox("Download Completed. Playback started ...");
-
-                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                    sw.Start();
-                    _histFeed.PlayBackData();
-                    sw.Stop();
-
-                    appendToTextBox(String.Format("Playback Completed in {0} secs", sw.Elapsed.ToString()));
-                    appendToTextBox("Writing to file");
-                    const string filePath = @"C:\Users\Andre\Documents\BBDataSource\Market Aggregator OutPut\";
-                    _markets.BatchWriteOutData(MarketAggregator.OutPutType.FlatFile, MarketAggregator.OutPutMktMode.BothMkts, filePath, 10);
-                    appendToTextBox("Completed file writeout");
-                    _markets.Reset();
-
-                    foreach (var factory in _factories)
-                        responded[factory.SecurityName] = false;
-
-                    foreach (var bbHist in _histFeed.HistoricalAdapters)
+                    if (bbHist.ConnectAndOpenSession())
                     {
-                        if (bbHist.ConnectAndOpenSession())
-                        {
-                            bbHist.SendHistTickDataRequest();
-                        }
+                        bbHist.SendNextRequest();
                     }
-
                 }
+
             }
         }
 
@@ -185,6 +263,7 @@ namespace Bloomberg_Tick_Data_Wrangler
             else
             {
                 this.textBox1.AppendText(text + System.Environment.NewLine);
+                Console.WriteLine(text);
             }
         }
     }

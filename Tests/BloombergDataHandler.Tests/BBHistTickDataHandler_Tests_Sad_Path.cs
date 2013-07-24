@@ -23,7 +23,7 @@ namespace BloombergDataHandler.Tests
          public void DataQueries_List_isNull_Or_Empty_Throws_ArgumentNullException()
          {
              var  BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(null);
+             BBHist.AddDataQueries(null);
 
          }
 

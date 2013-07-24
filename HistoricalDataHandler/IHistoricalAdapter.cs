@@ -9,10 +9,10 @@ namespace DataWrangler.HistoricalData
     public interface IHistoricalAdapter
     {
         HistoricalDataHandler DataHandler { get; set; }
-
+        
         List<ITickDataQuery> Queries { get; set; }
 
-        void LoadHistoricalData(List<ITickDataQuery> queries);
+        void AddDataQueries(List<ITickDataQuery> queries);
 
         bool ConnectAndOpenSession();
 

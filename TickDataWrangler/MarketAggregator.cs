@@ -12,7 +12,7 @@ namespace DataWrangler
 
         public enum OutPutType { FlatFile, Xml, Binary, SqlTable }
 
-        public enum OutPutMktMode { SeperateMkts, AggregatedMkts, BothMkts }
+        public enum OutPutMktMode { SeperateMkts, AggregatedMkts, SeperateAndAggregated }
 
         public OutPutType ExportMode { get; set; }
 
@@ -26,7 +26,10 @@ namespace DataWrangler
                 if (_allMktsInitialized) return true;
 
                 foreach (DataFactory dataFactory in _securitites)
-                    if (!dataFactory.MktInitialized) return false;
+                {
+                    if (dataFactory.HasCachedData)
+                        if (!dataFactory.MktInitialized) return false;
+                }
 
                 _allMktsInitialized = true;
                 return _allMktsInitialized;
@@ -89,6 +92,8 @@ namespace DataWrangler
 
         public void Reset()
         {
+            _allMktsInitialized = false;
+
             foreach (var factory in _securitites)
             {
                 factory.Reset();
@@ -102,12 +107,12 @@ namespace DataWrangler
             BatchWriteOutData(outPutMode, OutPutMktMode.AggregatedMkts, String.Empty, 0);
         }
 
-        public void BatchWriteOutData(OutPutType outPutMode, OutPutMktMode mktMode, string filePath, int cutOffHour)
+        public void BatchWriteOutData(OutPutType outPutMode, OutPutMktMode mktMode, string filePath, int cutOffHour = 25, string fileNameSuffix = "")
         {
             switch (outPutMode)
             {
                 case OutPutType.FlatFile:
-                    WriteOutFlatFile(mktMode, filePath, cutOffHour);
+                    WriteOutFlatFile(mktMode, filePath, cutOffHour, fileNameSuffix);
                     break;
                 case OutPutType.Xml:
                     break;
@@ -120,7 +125,7 @@ namespace DataWrangler
             }
         }
 
-        private void WriteOutFlatFile(OutPutMktMode mktMode, string filePath, int cutOffHour)
+        private void WriteOutFlatFile(OutPutMktMode mktMode, string filePath, int cutOffHour, string fileNameSuffix)
         {
             bool headerCreated = false;
 
@@ -131,7 +136,7 @@ namespace DataWrangler
                 MktsOutPut.Add(dataFactory.SecurityObj, new MktOutput()
                 {
                     basePath = filePath,
-                    baseExtension = ".csv",
+                    baseExtension = fileNameSuffix + ".csv",
                     security = dataFactory.SecurityObj
                 });
             }
@@ -181,28 +186,30 @@ namespace DataWrangler
                                 }
                         }
 
-                        if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.BothMkts))
+                        if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                         {
                             // output each of the individual markets data
                             if (mktOutPut.dataCache.Count > 0)
                                 writeCacheToFile(mktOutPut.filePath.ToString(), mktOutPut.dataCache);
+                            mktOutPut.dataCache.Add(mktOutPut.header);
                         }
 
 
                         // construct the new file name
                         fileName.Clear();
                         fileName.Append(filePath);
+                        DateTime currentAdj = current.AddHours(9).AddMinutes(1);
 
-                        string dateStr = current.Year.ToString() +
-                            current.Month.ToString("00") +
-                            current.Day.ToString("00");
+                        string dateStr = currentAdj.Year.ToString() +
+                            currentAdj.Month.ToString("00") +
+                            currentAdj.Day.ToString("00");
 
                         switch (mktMode)
                         {
                             case OutPutMktMode.SeperateMkts:
                                 mktOutPut.SetFilePath(dateStr);
                                 break;
-                            case OutPutMktMode.BothMkts:
+                            case OutPutMktMode.SeperateAndAggregated:
                                 mktOutPut.SetFilePath(dateStr);
                                 fileName.Append("All_Mkts_");
                                 break;
@@ -213,15 +220,16 @@ namespace DataWrangler
                         }
 
                         fileName.Append(dateStr);
-                        fileName.Append(".csv");
+                        fileName.Append(fileNameSuffix + ".csv");
                     }
 
-                    if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.BothMkts))
+                    if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                     {
                         MarketState lastTick = security.Value[(uint)(security.Value.Count - 1)];
                         data.Append(MarketStateToString(lastTick) + ",");
                     }
-                    else
+
+                    if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                     {
                         foreach (var mktStates in security.Value)
                         {
@@ -232,21 +240,21 @@ namespace DataWrangler
 
                 if (resetDate) date = timeStamp.Key; // reset the date if we moved passed the cut off for a new day
 
-                if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.BothMkts))
+                if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                 {
                     dataCacheAll.Add(data.ToString());
                 }
             }
 
 
-            if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.BothMkts))
+            if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
             {
                 if (dataCacheAll.Count > 0)
                     writeCacheToFile(fileName.ToString(), dataCacheAll);
             }
 
 
-            if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.BothMkts))
+            if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
             {
                 // output each of the individual markets final data set
                 foreach (var mktOutPut in MktsOutPut.Values)

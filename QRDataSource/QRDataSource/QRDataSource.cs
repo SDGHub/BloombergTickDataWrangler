@@ -1375,6 +1375,7 @@ namespace QRDataSource
                     pEndDate.Value = end;
                     cmd.Parameters.Add(pEndDate);
 
+                    cmd.CommandTimeout = 120;
                     cn.Open();
                     SqlDataAdapter sa = new SqlDataAdapter(cmd);
                     sa.Fill(dt);

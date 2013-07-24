@@ -6,8 +6,14 @@ using DataWrangler.Structures;
 
 namespace DataWrangler.HistoricalData
 {
-    public class HistoricalDataHandler
+
+    public class HistoricalDataHandler: ITickDataFeed
     {
+        public bool IsRealTime { get { return false; } }
+
+        public Dictionary<DataFactory, bool> HasChachedData { get { return _hasChachedData; } }
+        private Dictionary<DataFactory, bool> _hasChachedData = new Dictionary<DataFactory, bool>(); 
+
         public List<IHistoricalAdapter> HistoricalAdapters = new List<IHistoricalAdapter>();
 
         // cached historical data
@@ -26,8 +32,15 @@ namespace DataWrangler.HistoricalData
             HistoricalAdapters.Add(historicalAdapter);
         }
 
+        public void Reset()
+        {
+            CachedTickData.Clear();
+            _hasChachedData.Clear();
+            _mktSummaryEvents.Clear();
+        }
+
         #region Historical Data Caching
-        
+
         public void ParseTickDataList(object dataObject, List<TickData> dt)
         {
 
@@ -40,6 +53,13 @@ namespace DataWrangler.HistoricalData
                 if (!_mktSummaryEvents.ContainsKey(factory))
                     _mktSummaryEvents.Add(factory, new MktSummaryEvent { Complete = false });
                 MktSummaryEvent mktSummary = _mktSummaryEvents[factory];
+
+
+                if (!_hasChachedData.ContainsKey(factory))
+                    _hasChachedData.Add(factory, false);
+
+                if (dt.Count > 0)
+                    _hasChachedData[factory] = true;
 
                 foreach (var tick in dt)
                 {

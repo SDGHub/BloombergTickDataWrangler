@@ -112,7 +112,7 @@ namespace DataWrangler.Bloomberg
             initializeSessionOptions();
         }
 
-        public void LoadHistoricalData(List<ITickDataQuery> queries)
+        public void AddDataQueries(List<ITickDataQuery> queries)
         {
             if (queries == null || queries.Count == 0)
                 throw new ArgumentNullException("(List<TickDataQuery>", "TickDataQueries list must contain at least one query");
@@ -182,7 +182,7 @@ namespace DataWrangler.Bloomberg
                 partialResponseCnt = 0;
                 sendRequest(TickDataQueries[requestPointer]);
                 requestPointer++;
-                OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Begining Requests"));
+                OnBBHTDUpdate(new BBHTDEventArgs(EventType.StatusMsg, "Beginning Requests"));
                 return true;
             }
             return false;

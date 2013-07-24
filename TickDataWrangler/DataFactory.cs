@@ -11,6 +11,7 @@ namespace DataWrangler
         //private readonly string _securityName = String.Empty;
         private readonly Security _securityObj;
         private MarketAggregator _markets;
+        private ITickDataFeed _feed;
 
         // read only properties
         public string SecurityName { get; private set; }
@@ -30,6 +31,16 @@ namespace DataWrangler
         public MarketState CurrentInterval { get { return GetLatestState(); } }
         public bool MktInitialized { get { return _mktInitialized; } }
         bool _mktInitialized;
+        public bool HasCachedData
+        {
+            get
+            {
+                if (_feed.IsRealTime) return false;
+                var hasChachedData = _feed.HasChachedData;
+                if (!hasChachedData.ContainsKey(this)) return false;
+                return hasChachedData[this];
+            }
+        }
 
         public DateTime LatestTimeBin { get{ return _latestTimeBin;}}
         DateTime _latestTimeBin;
@@ -43,7 +54,7 @@ namespace DataWrangler
         // read only access to market data.
         public SortedDictionary<DateTime, SortedDictionary<uint, MarketState>> MarketData { get { return _marketData; } }
 
-        private DataFeed _blbgFeed;
+        private DataFeed _rtFeed;
 
         public DataFactory(Security security)
         {
@@ -54,11 +65,21 @@ namespace DataWrangler
 
         public void SubscribeToDataFeedEvents(DataFeed dataFeed)
         {
-            _blbgFeed = dataFeed;
-            _blbgFeed.BBRTDUpdate += RTDataHandler;
+            _rtFeed = dataFeed;
+            _rtFeed.BBRTDUpdate += RTDataHandler;
         }
 
         public void AddReferenceToMarkets(MarketAggregator markets)
+        {
+            _markets = markets;
+        }
+
+        public void AddReferenceToDatafeed(ITickDataFeed feed)
+        {
+            _feed = feed;
+        }
+
+        public void AddReferenceToDataFeed(MarketAggregator markets)
         {
             _markets = markets;
         }

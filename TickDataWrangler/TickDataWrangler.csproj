@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataFactory.cs" />
+    <Compile Include="ITickDataFeed.cs" />
     <Compile Include="MarketAggregator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -26,7 +26,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.IsNotNull(BBHist.TickDataQueries);
          }
@@ -38,7 +38,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.AreNotEqual(0, BBHist.TickDataQueries.Count);
          }
@@ -50,7 +50,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.IsTrue(BBHist.Asynchronous);
 
@@ -63,7 +63,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.AreEqual(_setups.serverHost, BBHist.SessionOptions.ServerHost);
          }
@@ -75,7 +75,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.AreEqual(_setups.serverPort, BBHist.SessionOptions.ServerPort);
          }
@@ -87,7 +87,7 @@ namespace BloombergDataHandler.Tests
              var queryGenerator = new TickDataQueries();
              var response = queryGenerator.GetTickDataQueries(testParams);
              var BBHist = new BloombergHistTickDataHandler();
-             BBHist.LoadHistoricalData(response);
+             BBHist.AddDataQueries(response);
 
              Assert.AreEqual(_setups.serverPort, BBHist.SessionOptions.ServerPort);
          }
