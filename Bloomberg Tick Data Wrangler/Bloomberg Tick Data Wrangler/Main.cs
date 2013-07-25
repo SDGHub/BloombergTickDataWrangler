@@ -30,12 +30,12 @@ namespace Bloomberg_Tick_Data_Wrangler
 
             var queryGenerator = new TickDataQueries();
 
-            var start = new DateTime(2013, 6, 4, 00, 00, 00);
-            var end = new DateTime(2013, 6, 4, 23, 59, 59);
+            var start = new DateTime(2013, 7, 24, 00, 00, 00);
+            var end = start.AddDays(1).AddTicks(-1); // new DateTime(2013, 7, 23, 23, 59, 59);
 
-            setUpInsturment(start, end, "NKM3 Index", Security.SecurityType.IndexFuture);
-            setUpInsturment(start, end, "NOM3 Index", Security.SecurityType.IndexFuture);
-            setUpInsturment(start, end, "NIM3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "NKU3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "NOU3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "NIU3 Index", Security.SecurityType.IndexFuture);
             setUpInsturment(start, end, "JPY Curncy", Security.SecurityType.Curncy);
 
 
@@ -55,6 +55,8 @@ namespace Bloomberg_Tick_Data_Wrangler
             _factories.Add(sec);
             _markets.AddSecurity(sec);
             sec.AddReferenceToMarkets(_markets);
+            sec.AddReferenceToDatafeed((ITickDataFeed)_histFeed);
+
 
             var query = new TickDataQuery()
             {
@@ -94,7 +96,7 @@ namespace Bloomberg_Tick_Data_Wrangler
                 var histBBTickData = new BloombergHistTickDataHandler();
                 histBBTickData.BBHTDUpdate += histTickData_Update;
 
-                histBBTickData.AddDataQueries(queries);
+                //histBBTickData.AddDataQueries(queries);
                 histBBTickData.AddDataQueries(queriesPM);
 
                 histBBTickData.DataHandler = _histFeed;
@@ -109,8 +111,8 @@ namespace Bloomberg_Tick_Data_Wrangler
                 var histTickData = new HistoricalData.HistoricalAdapterSqlDB(dsPath);
                 histTickData.HistTDUpdate += histTickData_Update;
 
-                histTickData.AddDataQueries(queries);
-                //histTickData.AddDataQueries(queriesPM);
+                //histTickData.AddDataQueries(queries);
+                histTickData.AddDataQueries(queriesPM);
 
                 histTickData.DataHandler = _histFeed;
                 _histFeed.AddHistoricalAdapter(histTickData);

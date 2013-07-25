@@ -236,18 +236,25 @@ namespace DataWrangler.HistoricalData
         {
             foreach (var secondsBin in CachedTickData)
             {
+                List<DataFactory> removeLst = new List<DataFactory>();
+                foreach (var kvpSummaryEvent in _mktSummaryEvents)
+                {
+                    var factory = kvpSummaryEvent.Key;
+                    var mktSummaryEvent = kvpSummaryEvent.Value;                   
+
+                     if (mktSummaryEvent.EventTime <= secondsBin.Key)
+                    {
+                        factory.FirstTick(mktSummaryEvent.Bid, mktSummaryEvent.Ask, mktSummaryEvent.Trade);
+                        removeLst.Add(factory);
+                    }
+                }
+
+                foreach (var factory in removeLst)
+                    _mktSummaryEvents.Remove(factory);
+
                 foreach (var security in secondsBin.Value)
                 {
                     DataFactory factory = security.Key;
-                    if (_mktSummaryEvents.ContainsKey(factory))
-                    {
-                        MktSummaryEvent mktSummaryEvent = _mktSummaryEvents[factory];
-                        if (mktSummaryEvent.EventTime <= secondsBin.Key)
-                        {
-                            factory.FirstTick(mktSummaryEvent.Bid, mktSummaryEvent.Ask, mktSummaryEvent.Trade);
-                            _mktSummaryEvents.Remove(factory);
-                        }
-                    }
 
                     // begin play back only after we have a summary event for each security
                     if (_mktSummaryEvents.Count < 1)

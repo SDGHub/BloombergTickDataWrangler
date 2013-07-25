@@ -588,46 +588,49 @@ namespace DataWrangler.Structures
 
         }
 
-        public string GetHeadersString()
+        public string GetHeadersString(bool includeSecurityNamePreFix = false)
         {
+            string del = ",";
+            if (includeSecurityNamePreFix) del += this.Name.Split(' ')[0] + "_";
+
             StringBuilder headerStr = new StringBuilder();
             headerStr.Append("Name");
-            headerStr.Append(",DateTime");
-            headerStr.Append(",BinCnt");
-            headerStr.Append(",Type");
-            headerStr.Append(",Bid");
-            headerStr.Append(",BidVol");
-            headerStr.Append(",BidOpn");
-            headerStr.Append(",BidVolOpen");
-            headerStr.Append(",BidVolChg");
-            headerStr.Append(",BidVolChgSum");
-            headerStr.Append(",BidVolChgCnt");
-            headerStr.Append(",VolAtBid");
-            headerStr.Append(",TrdCntBid");
-            headerStr.Append(",Ask");
-            headerStr.Append(",AskVol");
-            headerStr.Append(",AskOpen");
-            headerStr.Append(",AskVolOpen");
-            headerStr.Append(",AskVolChg");
-            headerStr.Append(",AskVolChgSum");
-            headerStr.Append(",AskVolChgCnt");
-            headerStr.Append(",VolAtAsk");
-            headerStr.Append(",TrdCntAsk ");
-            headerStr.Append(",Mid");
-            headerStr.Append(",MidOpn");
-            headerStr.Append(",MidScaled");
-            headerStr.Append(",MidScaledOpen");
-            headerStr.Append(",LastPrice");
-            headerStr.Append(",LastPriceOpn");
-            headerStr.Append(",LastSize");
+            headerStr.Append(del); headerStr.Append("DateTime");
+            headerStr.Append(del); headerStr.Append("BinCnt");
+            headerStr.Append(del); headerStr.Append("Type");
+            headerStr.Append(del); headerStr.Append("Bid");
+            headerStr.Append(del); headerStr.Append("BidVol");
+            headerStr.Append(del); headerStr.Append("BidOpn");
+            headerStr.Append(del); headerStr.Append("BidVolOpen");
+            headerStr.Append(del); headerStr.Append("BidVolChg");
+            headerStr.Append(del); headerStr.Append("BidVolChgSum");
+            headerStr.Append(del); headerStr.Append("BidVolChgCnt");
+            headerStr.Append(del); headerStr.Append("VolAtBid");
+            headerStr.Append(del); headerStr.Append("TrdCntBid");
+            headerStr.Append(del); headerStr.Append("Ask");
+            headerStr.Append(del); headerStr.Append("AskVol");
+            headerStr.Append(del); headerStr.Append("AskOpen");
+            headerStr.Append(del); headerStr.Append("AskVolOpen");
+            headerStr.Append(del); headerStr.Append("AskVolChg");
+            headerStr.Append(del); headerStr.Append("AskVolChgSum");
+            headerStr.Append(del); headerStr.Append("AskVolChgCnt");
+            headerStr.Append(del); headerStr.Append("VolAtAsk");
+            headerStr.Append(del); headerStr.Append("TrdCntAsk ");
+            headerStr.Append(del); headerStr.Append("Mid");
+            headerStr.Append(del); headerStr.Append("MidOpn");
+            headerStr.Append(del); headerStr.Append("MidScaled");
+            headerStr.Append(del); headerStr.Append("MidScaledOpen");
+            headerStr.Append(del); headerStr.Append("LastPrice");
+            headerStr.Append(del); headerStr.Append("LastPriceOpn");
+            headerStr.Append(del); headerStr.Append("LastSize");
 
             return headerStr.ToString();
         }
 
-        public string GetTradesHeaderString(int maxSize)
+        public string GetTradesHeaderString(int maxSize, bool includeSecurityNamePreFix = false)
         {
-
-            const string del = ",";
+            string del = ",";
+            if (includeSecurityNamePreFix) del += this.Name.Split(' ')[0] + "_";
 
             StringBuilder headerStr = new StringBuilder();
             headerStr.Append(del);
@@ -642,7 +645,8 @@ namespace DataWrangler.Structures
                 headerStr.Append("CntAsk"); headerStr.Append(i.ToString()); headerStr.Append(del);
             }
 
-            return headerStr.ToString();
+            string untrimmed = headerStr.ToString();
+            return untrimmed.Substring(0, untrimmed.Length - del.Length + 1);
         }
 
         public class TradesAtPrice

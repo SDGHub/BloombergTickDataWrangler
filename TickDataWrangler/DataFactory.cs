@@ -45,6 +45,8 @@ namespace DataWrangler
         public DateTime LatestTimeBin { get{ return _latestTimeBin;}}
         DateTime _latestTimeBin;
 
+        public DateTime FirstTimeBin { get; private set; }
+
         public bool LogEachTick = false;
 
         // Main data repository
@@ -151,6 +153,7 @@ namespace DataWrangler
                 _mktInitialized = true;
                 _marketData.Add(timeBin, new SortedDictionary<uint, MarketState>());
                 _latestTimeBin = timeBin > _latestTimeBin ? timeBin : _latestTimeBin;
+                FirstTimeBin = bid.TimeStamp;
 
                 lock (_marketData[timeBin])
                 {
@@ -290,6 +293,11 @@ namespace DataWrangler
 
             // or if that does not exist, the closest previous time stamp
             DateTime currTimeBinsTimeStamp = getCurrentInterval(timeStamp);
+
+            // no data before the time stamp
+            if (currTimeBinsTimeStamp == DateTime.MinValue) return null; 
+
+            // otherwise, get the most recent dat point before and dulicate final state with new time stamp
             return DuplicateTick(_marketData[currTimeBinsTimeStamp], timeStamp);
         }
 

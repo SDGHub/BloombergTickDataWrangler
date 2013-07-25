@@ -18,6 +18,7 @@ namespace DataWrangler
 
         public string OutputPath { get; set; }
 
+        private DateTime _allMktsStateTime = DateTime.MinValue;
         private bool _allMktsInitialized = false;
         public bool AllMktsInitialized
         {
@@ -27,6 +28,9 @@ namespace DataWrangler
 
                 foreach (DataFactory dataFactory in _securitites)
                 {
+                    Console.WriteLine("         {0} {1} FirstTS {2} HasCachedData ={3} MktInitialized ={4}", 
+                        dataFactory.SecurityName, _allMktsStateTime.ToLongTimeString(), dataFactory.FirstTimeBin, dataFactory.HasCachedData, dataFactory.MktInitialized);
+
                     if (dataFactory.HasCachedData)
                         if (!dataFactory.MktInitialized) return false;
                 }
@@ -44,6 +48,18 @@ namespace DataWrangler
 
         private readonly List<DataFactory> _securitites = new List<DataFactory>();
 
+        public void Reset()
+        {
+            _allMktsInitialized = false;
+
+            foreach (var factory in _securitites)
+            {
+                factory.Reset();
+                _lastState = DateTime.MinValue;
+                Markets = new SortedDictionary<DateTime, Dictionary<Security, SortedDictionary<uint, MarketState>>>();
+            }
+        }
+
         public MarketAggregator()
         {
             InputMode = Mode.RealTime;
@@ -56,6 +72,8 @@ namespace DataWrangler
 
         public void AddTickData(DataFactory factory, SortedDictionary<uint, MarketState> state, DateTime stateTime)
         {
+            _allMktsStateTime = stateTime;
+            
             if (AllMktsInitialized)
             {
                 if (!Markets.ContainsKey(stateTime))
@@ -73,7 +91,9 @@ namespace DataWrangler
                         if (!allMarketsAtTime.ContainsKey(f.SecurityObj))
                         {
                             SortedDictionary<uint, MarketState> mktData = factory.Equals(f) ? state : f.GetLatestOrBefore(stateTime);
-                            allMarketsAtTime.Add(f.SecurityObj, mktData);
+
+                            if (mktData != null) 
+                                allMarketsAtTime.Add(f.SecurityObj, mktData);
                         }
                         else // market data for this security, for this time stamp exists already
                         {
@@ -87,18 +107,6 @@ namespace DataWrangler
                     if (_lastState < stateTime) _lastState = stateTime;
 
                 }
-            }
-        }
-
-        public void Reset()
-        {
-            _allMktsInitialized = false;
-
-            foreach (var factory in _securitites)
-            {
-                factory.Reset();
-                _lastState = DateTime.MinValue;
-                Markets = new SortedDictionary<DateTime, Dictionary<Security, SortedDictionary<uint, MarketState>>>();
             }
         }
 
@@ -155,8 +163,10 @@ namespace DataWrangler
                     foreach (var security in timeStamp.Value)
                     {
                         MarketState marketState = security.Value[0];
+                        string allmktHeaderString = marketState.GetHeadersString(true) + marketState.GetTradesHeaderString(5, true);
+                        allMktsHeader.Append(allmktHeaderString);
+
                         string mktHeaderString = marketState.GetHeadersString() + marketState.GetTradesHeaderString(5);
-                        allMktsHeader.Append(mktHeaderString);
                         MktsOutPut[security.Key].header = mktHeaderString;
                     }
 

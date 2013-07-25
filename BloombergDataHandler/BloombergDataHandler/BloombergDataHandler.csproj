@@ -43,6 +43,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
+    <Reference Include="TickDataWrangler, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TickDataWrangler\bin\Debug\TickDataWrangler.dll</HintPath>
+    </Reference>
     <Reference Include="WranglerDataStructures, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\WranglerDataStructures\bin\Debug\WranglerDataStructures.dll</HintPath>
