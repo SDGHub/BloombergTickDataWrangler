@@ -61,7 +61,7 @@ namespace DataWrangler.Structures
         public double VolAtBidTdy { get; private set; }
         public double OrderFlowTdy { get; private set; }
         public double VolumeTdy { get; private set; }
-
+        
         private uint _binCnt = 0;
         public uint BinCnt
         {
@@ -210,8 +210,8 @@ namespace DataWrangler.Structures
 
             TimeStamp = timeStamp;
             FirstOfInterval = true;
-            CopyPrevState(previousMktState, FirstOfInterval);
             StateType = MktStateType.Duplicate;
+            CopyPrevState(previousMktState, FirstOfInterval);
         }
 
         private void CopyPrevState(MarketState previous, bool isFirstOfInterval)
@@ -247,7 +247,8 @@ namespace DataWrangler.Structures
                 BidVolChgCnt = previous.BidVolChgCnt;
                 AskVolChgSum = previous.AskVolChgSum;
                 AskVolChgCnt = previous.AskVolChgCnt;
-                TrdsAtPrice = previous.TrdsAtPrice;
+
+                if (StateType != MktStateType.Duplicate) TrdsAtPrice = previous.TrdsAtPrice;
                 //BinCnt++;
             }
             else
@@ -304,10 +305,12 @@ namespace DataWrangler.Structures
                         {
                             if ((Bid < PrevBid)) // just ticked down
                             {
-                                BidVolChg = (int)(PrevBidVol);
-                                BidVolChgSum -= BidVolChg;
+                                BidVolChg = -(int)(PrevBidVol);
+                                BidVolChgSum += BidVolChg;
                                 SetBidVolChgCnt(BidVolChg);
-                                //Console.WriteLine("{0} went offered @ {1} {2} {3} {4}", Name, TimeStamp.ToLongTimeString(), Bid.ToString(), PrevBid.ToString(), BidVolChg.ToString());
+
+                                //Console.WriteLine("{0} went offered @ {1} {2} {3} {4} {5}",
+                                //    Name, TimeStamp.ToLongTimeString(), Bid.ToString(), PrevBid.ToString(), BidVolChg.ToString(), BidVolChgSum.ToString());
                             }
                         }
                     }
@@ -368,6 +371,15 @@ namespace DataWrangler.Structures
                             AskVolChgSum += AskVolChg;
                             SetAskVolChgCnt(AskVolChg);
                             //Console.WriteLine(SecurityObj.Name + " went offered @" + timeStamp.ToLongTimeString());
+                        }
+                        else
+                        {
+                            if ((Ask > PrevAsk)) // just ticked up
+                            {
+                                AskVolChg = -(int)(PrevAsk);
+                                AskVolChgSum += AskVolChg;
+                                SetAskVolChgCnt(AskVolChg);
+                            }
                         }
 
                     }
@@ -519,10 +531,9 @@ namespace DataWrangler.Structures
             return output.TrimEnd();
         }
 
-        // flat file output methods
         public string ToFlatFileStringAllData()
         {
-            const string del = ", ";
+            const string del = ",";
             StringBuilder dataStr = new StringBuilder();
 
             // output string 
@@ -557,6 +568,24 @@ namespace DataWrangler.Structures
             dataStr.Append(del); dataStr.Append(LastTrdSize.ToString());
 
             return dataStr.ToString();
+        }
+
+        public string ToFlatFileStringCodes()
+        {
+            StringBuilder dataStr = new StringBuilder();
+            dataStr.Append(",");
+            if (Codes != null)
+            {
+                const string del = ":";
+                foreach (var TypeNCode in Codes)
+                {
+                    dataStr.Append(TypeNCode.Key.ToString());
+                    dataStr.Append(del);
+                    dataStr.Append(TypeNCode.Value.ToString());
+                }
+            }
+
+            return dataStr.ToString().TrimEnd();
         }
 
         public string ToFlatFileStringAllTrades(int maxSize)
@@ -600,7 +629,7 @@ namespace DataWrangler.Structures
             headerStr.Append(del); headerStr.Append("Type");
             headerStr.Append(del); headerStr.Append("Bid");
             headerStr.Append(del); headerStr.Append("BidVol");
-            headerStr.Append(del); headerStr.Append("BidOpn");
+            headerStr.Append(del); headerStr.Append("BidOpen");
             headerStr.Append(del); headerStr.Append("BidVolOpen");
             headerStr.Append(del); headerStr.Append("BidVolChg");
             headerStr.Append(del); headerStr.Append("BidVolChgSum");
@@ -621,12 +650,16 @@ namespace DataWrangler.Structures
             headerStr.Append(del); headerStr.Append("MidScaled");
             headerStr.Append(del); headerStr.Append("MidScaledOpen");
             headerStr.Append(del); headerStr.Append("LastPrice");
-            headerStr.Append(del); headerStr.Append("LastPriceOpn");
+            headerStr.Append(del); headerStr.Append("LastPriceOpen");
             headerStr.Append(del); headerStr.Append("LastSize");
 
             return headerStr.ToString();
         }
 
+        public string GetCodesHeadersString()
+        {
+            return ",Codes";
+        }
         public string GetTradesHeaderString(int maxSize, bool includeSecurityNamePreFix = false)
         {
             string del = ",";

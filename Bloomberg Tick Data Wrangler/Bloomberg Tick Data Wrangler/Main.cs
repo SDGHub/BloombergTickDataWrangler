@@ -30,12 +30,15 @@ namespace Bloomberg_Tick_Data_Wrangler
 
             var queryGenerator = new TickDataQueries();
 
-            var start = new DateTime(2013, 7, 24, 00, 00, 00);
+            var start = new DateTime(2013, 7, 1, 00, 00, 00);
             var end = start.AddDays(1).AddTicks(-1); // new DateTime(2013, 7, 23, 23, 59, 59);
 
             setUpInsturment(start, end, "NKU3 Index", Security.SecurityType.IndexFuture);
             setUpInsturment(start, end, "NOU3 Index", Security.SecurityType.IndexFuture);
             setUpInsturment(start, end, "NIU3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "TPU3 Index", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "JBU3 Comdty", Security.SecurityType.IndexFuture);
+            setUpInsturment(start, end, "ESU3 Index", Security.SecurityType.IndexFuture);
             setUpInsturment(start, end, "JPY Curncy", Security.SecurityType.Curncy);
 
 
@@ -56,7 +59,6 @@ namespace Bloomberg_Tick_Data_Wrangler
             _markets.AddSecurity(sec);
             sec.AddReferenceToMarkets(_markets);
             sec.AddReferenceToDatafeed((ITickDataFeed)_histFeed);
-
 
             var query = new TickDataQuery()
             {
@@ -85,7 +87,7 @@ namespace Bloomberg_Tick_Data_Wrangler
                     IncludeExchangeCode = q.IncludeExchangeCode,
                 });
 
-                q.StartDate = q.StartDate.AddHours(-1);
+                //q.StartDate = q.StartDate.AddHours(-1);
                 q.EndDate = new DateTime(q.EndDate.Year, q.EndDate.Month, q.EndDate.Day, 6, 20, 00);               
             }
 
@@ -96,7 +98,7 @@ namespace Bloomberg_Tick_Data_Wrangler
                 var histBBTickData = new BloombergHistTickDataHandler();
                 histBBTickData.BBHTDUpdate += histTickData_Update;
 
-                //histBBTickData.AddDataQueries(queries);
+                histBBTickData.AddDataQueries(queries);
                 histBBTickData.AddDataQueries(queriesPM);
 
                 histBBTickData.DataHandler = _histFeed;
@@ -110,9 +112,9 @@ namespace Bloomberg_Tick_Data_Wrangler
 
                 var histTickData = new HistoricalData.HistoricalAdapterSqlDB(dsPath);
                 histTickData.HistTDUpdate += histTickData_Update;
-
-                //histTickData.AddDataQueries(queries);
-                histTickData.AddDataQueries(queriesPM);
+                
+                histTickData.AddDataQueries(queries);
+                //histTickData.AddDataQueries(queriesPM);
 
                 histTickData.DataHandler = _histFeed;
                 _histFeed.AddHistoricalAdapter(histTickData);
@@ -165,7 +167,7 @@ namespace Bloomberg_Tick_Data_Wrangler
                     case HistoricalAdapterSqlDB.EventType.ErrorMsg:
                         break;
                     case HistoricalAdapterSqlDB.EventType.StatusMsg:
-                        Console.WriteLine(eventArgs.Msg);
+                        //Console.WriteLine(eventArgs.Msg);
                         appendToTextBox(eventArgs.Msg);
                         break;
                     default:
@@ -224,6 +226,7 @@ namespace Bloomberg_Tick_Data_Wrangler
                 sw.Start();
                 _histFeed.PlayBackData();
                 sw.Stop();
+                _histFeed.Reset();
 
                 appendToTextBox(String.Format("Playback Completed in {0} secs", sw.Elapsed.ToString()));
                 appendToTextBox("Writing to file");

@@ -18,7 +18,6 @@ namespace DataWrangler
 
         public string OutputPath { get; set; }
 
-        private DateTime _allMktsStateTime = DateTime.MinValue;
         private bool _allMktsInitialized = false;
         public bool AllMktsInitialized
         {
@@ -28,8 +27,8 @@ namespace DataWrangler
 
                 foreach (DataFactory dataFactory in _securitites)
                 {
-                    Console.WriteLine("         {0} {1} FirstTS {2} HasCachedData ={3} MktInitialized ={4}", 
-                        dataFactory.SecurityName, _allMktsStateTime.ToLongTimeString(), dataFactory.FirstTimeBin, dataFactory.HasCachedData, dataFactory.MktInitialized);
+                    //Console.WriteLine("         {0} {1} FirstTS {2} HasCachedData ={3} MktInitialized ={4}", 
+                    //    dataFactory.SecurityName, _allMktsStateTime.ToLongTimeString(), dataFactory.FirstTimeBin, dataFactory.HasCachedData, dataFactory.MktInitialized);
 
                     if (dataFactory.HasCachedData)
                         if (!dataFactory.MktInitialized) return false;
@@ -51,13 +50,11 @@ namespace DataWrangler
         public void Reset()
         {
             _allMktsInitialized = false;
+            _lastState = DateTime.MinValue;
+            Markets = new SortedDictionary<DateTime, Dictionary<Security, SortedDictionary<uint, MarketState>>>();
 
             foreach (var factory in _securitites)
-            {
                 factory.Reset();
-                _lastState = DateTime.MinValue;
-                Markets = new SortedDictionary<DateTime, Dictionary<Security, SortedDictionary<uint, MarketState>>>();
-            }
         }
 
         public MarketAggregator()
@@ -72,7 +69,6 @@ namespace DataWrangler
 
         public void AddTickData(DataFactory factory, SortedDictionary<uint, MarketState> state, DateTime stateTime)
         {
-            _allMktsStateTime = stateTime;
             
             if (AllMktsInitialized)
             {
@@ -166,7 +162,7 @@ namespace DataWrangler
                         string allmktHeaderString = marketState.GetHeadersString(true) + marketState.GetTradesHeaderString(5, true);
                         allMktsHeader.Append(allmktHeaderString);
 
-                        string mktHeaderString = marketState.GetHeadersString() + marketState.GetTradesHeaderString(5);
+                        string mktHeaderString = marketState.GetHeadersString() + marketState.GetCodesHeadersString();
                         MktsOutPut[security.Key].header = mktHeaderString;
                     }
 
@@ -236,14 +232,14 @@ namespace DataWrangler
                     if ((mktMode == OutPutMktMode.AggregatedMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                     {
                         MarketState lastTick = security.Value[(uint)(security.Value.Count - 1)];
-                        data.Append(MarketStateToString(lastTick) + ",");
+                        data.Append(MarketStateToString(lastTick, 5) + ",");
                     }
 
                     if ((mktMode == OutPutMktMode.SeperateMkts) || (mktMode == OutPutMktMode.SeperateAndAggregated))
                     {
                         foreach (var mktStates in security.Value)
                         {
-                            mktOutPut.dataCache.Add(MarketStateToString(mktStates.Value) + ",");
+                            mktOutPut.dataCache.Add(MarketStateToString(mktStates.Value));
                         }
                     }
                 }
@@ -254,6 +250,8 @@ namespace DataWrangler
                 {
                     dataCacheAll.Add(data.ToString());
                 }
+
+
             }
 
 
@@ -278,12 +276,20 @@ namespace DataWrangler
         private void writeCacheToFile(string path, List<string> dataCache)
         {
             System.IO.File.WriteAllLines(path, dataCache);
-            dataCache.Clear();
+            dataCache = null;
+            dataCache = new List<string>();
+        }
+
+        private string MarketStateToString(MarketState lastTick, int numTradePrices)
+        {
+            string output = lastTick.ToFlatFileStringAllData() + lastTick.ToFlatFileStringAllTrades(numTradePrices);
+
+            return output;
         }
 
         private string MarketStateToString(MarketState lastTick)
         {
-            string output = lastTick.ToFlatFileStringAllData() + lastTick.ToFlatFileStringAllTrades(5);
+            string output = lastTick.ToFlatFileStringAllData() + lastTick.ToFlatFileStringCodes();
 
             return output;
         }

@@ -50,7 +50,7 @@ namespace DataWrangler
         public bool LogEachTick = false;
 
         // Main data repository
-        private readonly SortedDictionary<DateTime, SortedDictionary<uint, MarketState>> _marketData
+        private SortedDictionary<DateTime, SortedDictionary<uint, MarketState>> _marketData
             = new SortedDictionary<DateTime, SortedDictionary<uint, MarketState>>();
 
         // read only access to market data.
@@ -88,7 +88,7 @@ namespace DataWrangler
 
         public void Reset()
         {
-            _marketData.Clear();
+            _marketData = new SortedDictionary<DateTime, SortedDictionary<uint, MarketState>>();
             _latestTimeBin = DateTime.MinValue;
             _mktInitialized = false;
 

@@ -20,7 +20,7 @@ namespace DataWrangler.HistoricalData
         public SortedDictionary<DateTime, Dictionary<DataFactory, List<TickData>>> CachedTickData
             = new SortedDictionary<DateTime, Dictionary<DataFactory, List<TickData>>>();
 
-        private readonly Dictionary<DataFactory, MktSummaryEvent>
+        private Dictionary<DataFactory, MktSummaryEvent>
             _mktSummaryEvents = new Dictionary<DataFactory, MktSummaryEvent>();
  
         public HistoricalDataHandler()
@@ -34,9 +34,9 @@ namespace DataWrangler.HistoricalData
 
         public void Reset()
         {
-            CachedTickData.Clear();
-            _hasChachedData.Clear();
-            _mktSummaryEvents.Clear();
+            CachedTickData = new SortedDictionary<DateTime, Dictionary<DataFactory, List<TickData>>>();
+            _hasChachedData = new Dictionary<DataFactory, bool>();
+            _mktSummaryEvents = new Dictionary<DataFactory, MktSummaryEvent>();
         }
 
         #region Historical Data Caching
@@ -266,6 +266,7 @@ namespace DataWrangler.HistoricalData
                     }
                 }                                
             }
+
         }
 
         #endregion
